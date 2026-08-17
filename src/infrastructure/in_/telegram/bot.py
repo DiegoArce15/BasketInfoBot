@@ -1,8 +1,8 @@
 from telegram.ext import Application, ApplicationBuilder, CommandHandler
 
 from src.application.add_favorite_team_use_case import AddFavoriteTeamUseCase
-from src.application.get_upcoming_matches_for_user_use_case import (
-    GetUpcomingMatchesForUserUseCase,
+from src.application.get_upcoming_matches_by_user_use_case import (
+    GetUpcomingMatchesByUserUseCase,
 )
 from src.application.register_user_use_case import RegisterUserUseCase
 from src.infrastructure.in_.telegram.handlers import TelegramBotHandlers
@@ -12,7 +12,7 @@ def create_telegram_app(
     bot_token: str,
     register_user_use_case: RegisterUserUseCase,
     add_favorite_team_use_case: AddFavoriteTeamUseCase,
-    get_upcoming_matches_use_case: GetUpcomingMatchesForUserUseCase,
+    get_upcoming_matches_use_case: GetUpcomingMatchesByUserUseCase,
 ) -> Application:
     """Instancia y configura los handlers de la aplicación de Telegram."""
 

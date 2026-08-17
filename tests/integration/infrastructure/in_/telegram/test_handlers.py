@@ -3,7 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.domain.entities import Match, MatchId, Team, TeamId, UserId
+from src.application.get_upcoming_matches_by_user_use_case import MatchResponseDTO
+from src.domain.entities import Team, TeamId, UserId
 from src.infrastructure.in_.telegram.handlers import TelegramBotHandlers
 
 
@@ -23,7 +24,7 @@ def add_favorite_team_use_case():
 
 
 @pytest.fixture
-def get_upcoming_matches_use_case():
+def get_upcoming_matches_by_user_use_case():
     return MagicMock()
 
 
@@ -32,18 +33,18 @@ def handler(
     register_user_use_case,
     get_available_teams_use_case,
     add_favorite_team_use_case,
-    get_upcoming_matches_use_case,
+    get_upcoming_matches_by_user_use_case,
 ):
     return TelegramBotHandlers(
         register_user_use_case=register_user_use_case,
         get_available_teams_use_case=get_available_teams_use_case,
         add_favorite_team_use_case=add_favorite_team_use_case,
-        get_upcoming_matches_use_case=get_upcoming_matches_use_case,
+        get_upcoming_matches_by_user_use_case=get_upcoming_matches_by_user_use_case,
     )
 
+
 async def test_select_favorite_team_handler_shows_available_teams(
-        handler,
-        get_available_teams_use_case
+    handler, get_available_teams_use_case
 ):
     # Given
     real_madrid = Team(
@@ -82,9 +83,9 @@ async def test_select_favorite_team_handler_shows_available_teams(
     assert buttons[1][0].text == "Valencia Basket"
     assert buttons[1][0].callback_data == "fav_valencia-basket"
 
+
 async def test_favorite_team_callback_adds_selected_team_to_favorites(
-    handler,
-    add_favorite_team_use_case
+    handler, add_favorite_team_use_case
 ):
     # Given
     update = MagicMock()
@@ -107,14 +108,16 @@ async def test_favorite_team_callback_adds_selected_team_to_favorites(
     update.callback_query.answer.assert_awaited_once()
 
     update.callback_query.edit_message_text.assert_awaited_once_with(
-        '✅ ¡Equipo guardado en tus favoritos!'    )
+        "✅ ¡Equipo guardado en tus favoritos!"
+    )
+
 
 async def test_upcoming_matches_handler_shows_message_when_there_are_no_matches(
     handler,
-    get_upcoming_matches_use_case
+    get_upcoming_matches_by_user_use_case,
 ):
     # Given
-    get_upcoming_matches_use_case.execute.return_value = []
+    get_upcoming_matches_by_user_use_case.execute.return_value = []
 
     update = MagicMock()
     update.effective_user.id = 1
@@ -124,7 +127,7 @@ async def test_upcoming_matches_handler_shows_message_when_there_are_no_matches(
     await handler.upcoming_matches_handler(update, MagicMock())
 
     # Then
-    get_upcoming_matches_use_case.execute.assert_called_once_with(
+    get_upcoming_matches_by_user_use_case.execute.assert_called_once_with(
         user_id=UserId(1),
     )
 
@@ -132,33 +135,23 @@ async def test_upcoming_matches_handler_shows_message_when_there_are_no_matches(
         "No hay partidos próximos para tus equipos favoritos"
     )
 
+
 async def test_upcoming_matches_handler_shows_upcoming_matches(
     handler,
-    get_upcoming_matches_use_case,
+    get_upcoming_matches_by_user_use_case,
 ):
     # Given
-    home_team = Team(
-        id=TeamId("real-madrid"),
-        name="Real Madrid",
-    )
-
-    away_team = Team(
-        id=TeamId("valencia-basket"),
-        name="Valencia Basket",
-    )
-
-    match = Match(
-        id=MatchId("2026-08-20-rm-valencia"),
-        home_team=home_team,
-        away_team=away_team,
-        start_time=datetime(
-            2026, 8, 20, 20, 30, tzinfo=UTC
-        ),
+    match = MatchResponseDTO(
+        home_team_name="Real Madrid",
+        away_team_name="Valencia Basket",
+        start_time=datetime(2026, 8, 20, 20, 30, tzinfo=UTC),
+        score=None,
         channel="Movistar",
         league="Liga ACB",
+        status="SCHEDULED",
     )
 
-    get_upcoming_matches_use_case.execute.return_value = [match]
+    get_upcoming_matches_by_user_use_case.execute.return_value = [match]
 
     update = MagicMock()
     update.effective_user.id = 1
@@ -168,7 +161,7 @@ async def test_upcoming_matches_handler_shows_upcoming_matches(
     await handler.upcoming_matches_handler(update, MagicMock())
 
     # Then
-    get_upcoming_matches_use_case.execute.assert_called_once_with(
+    get_upcoming_matches_by_user_use_case.execute.assert_called_once_with(
         user_id=UserId(1),
     )
 

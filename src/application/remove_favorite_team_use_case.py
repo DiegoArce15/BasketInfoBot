@@ -11,7 +11,7 @@ class RemoveFavoriteTeamUseCase:
     def execute(self, user_id: UserId, team_id: TeamId) -> None:
         user = self.user_repo.find_by_id(user_id)
         if not user:
-            raise ValueError(f"Usuario con ID {user_id.value} no encontrado.")
+            raise ValueError(f"Usuario con id {user_id.value} no encontrado")
 
         if team_id in user.favorite_team_ids:
             user.favorite_team_ids.remove(team_id)

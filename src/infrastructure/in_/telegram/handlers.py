@@ -3,8 +3,8 @@ from telegram.ext import ContextTypes
 
 from src.application.add_favorite_team_use_case import AddFavoriteTeamUseCase
 from src.application.get_available_teams_use_case import GetAvailableTeamsUseCase
-from src.application.get_upcoming_matches_for_user_use_case import (
-    GetUpcomingMatchesForUserUseCase,
+from src.application.get_upcoming_matches_by_user_use_case import (
+    GetUpcomingMatchesByUserUseCase,
 )
 from src.application.register_user_use_case import RegisterUserUseCase
 from src.domain.entities import TeamId, UserId
@@ -18,12 +18,12 @@ class TelegramBotHandlers:
         register_user_use_case: RegisterUserUseCase,
         add_favorite_team_use_case: AddFavoriteTeamUseCase,
         get_available_teams_use_case: GetAvailableTeamsUseCase,
-        get_upcoming_matches_use_case: GetUpcomingMatchesForUserUseCase,
+        get_upcoming_matches_by_user_use_case: GetUpcomingMatchesByUserUseCase,
     ):
         self.register_user_use_case = register_user_use_case
         self.add_favorite_team_use_case = add_favorite_team_use_case
         self.get_available_teams_use_case = get_available_teams_use_case
-        self.get_upcoming_matches_use_case = get_upcoming_matches_use_case
+        self.get_upcoming_matches_by_user_use_case = get_upcoming_matches_by_user_use_case
 
     async def start_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -106,7 +106,7 @@ class TelegramBotHandlers:
         if not user or not update.message:
             return
 
-        matches = self.get_upcoming_matches_use_case.execute(
+        matches = self.get_upcoming_matches_by_user_use_case.execute(
             user_id=UserId(user.id)
         )
 
@@ -121,7 +121,7 @@ class TelegramBotHandlers:
             date_str = match.start_time.strftime("%d/%m/%Y a las %H:%M")
             channel_str = match.channel if match.channel else "Sin confirmar"
             lines.append(
-                f"• *{match.home_team.name}* vs *{match.away_team.name}*\n"
+                f"• *{match.home_team_name}* vs *{match.away_team_name}*\n"
                 f"  🗓️ {date_str} UTC\n"
                 f"  📺 TV: {channel_str}\n"
             )

@@ -1,146 +1,124 @@
 from datetime import UTC, datetime
+from unittest.mock import Mock
+
+import pytest
 
 from src.application.process_scraped_matches_use_case import (
     ProcessScrapedMatchesUseCase,
+    ScrapedMatchDTO,
 )
-from src.domain.entities import Match, MatchId, MatchStatus, Team, TeamId
+from src.domain.entities import MatchStatus, TeamId
 
 
-def test_process_scraped_matches_preserves_all_match_and_team_data(
-    team_repo, match_repo
-):
-    # Given: Datos detallados provenientes del scraper
-    home_team = Team(
-        id=TeamId("real-madrid"),
-        name="Real Madrid",
-        country="Spain",
-        logo_url="https://example.com/logos/rm.png",
-    )
-    away_team = Team(
-        id=TeamId("barcelona"),
-        name="FC Barcelona",
-        country="Spain",
-        logo_url="https://example.com/logos/fcb.png",
-    )
-
-    match_time = datetime(2026, 10, 25, 21, 0, tzinfo=UTC)
-    scraped_match = Match(
-        id=MatchId("2026-10-25-rm-barca"),
-        home_team=home_team,
-        away_team=away_team,
-        start_time=match_time,
-        channel="DAZN / Movistar LaLiga",
-        league="EuroLeague",
-        status=MatchStatus.SCHEDULED,
-    )
-
-    use_case = ProcessScrapedMatchesUseCase(team_repo, match_repo)
-
-    # When: Ingerimos los datos
-    use_case.execute([scraped_match])
-
-    # Then 1: Verificamos que el equipo local se guardó íntegramente
-    saved_home_team = team_repo.find_by_id(home_team.id)
-    assert saved_home_team is not None
-    assert saved_home_team.id == TeamId("real-madrid")
-    assert saved_home_team.name == "Real Madrid"
-    assert saved_home_team.country == "Spain"
-    assert saved_home_team.logo_url == "https://example.com/logos/rm.png"
-
-    # Then 2: Verificamos que el equipo visitante se guardó íntegramente
-    saved_away_team = team_repo.find_by_id(away_team.id)
-    assert saved_away_team is not None
-    assert saved_away_team.id == TeamId("barcelona")
-    assert saved_away_team.name == "FC Barcelona"
-
-    # Then 3: Verificamos toda la información del partido
-    saved_match = match_repo.find_by_id(scraped_match.id)
-    assert saved_match is not None
-    assert saved_match.id == MatchId("2026-10-25-rm-barca")
-    assert saved_match.home_team.id == home_team.id
-    assert saved_match.away_team.id == away_team.id
-    assert saved_match.start_time == match_time
-    assert saved_match.channel == "DAZN / Movistar LaLiga"
-    assert saved_match.league == "EuroLeague"
-    assert saved_match.status == MatchStatus.SCHEDULED
+@pytest.fixture
+def mock_match_repository() -> Mock:
+    return Mock()
 
 
-def test_process_scraped_matches_handles_missing_optional_data(
-    team_repo, match_repo
-):
-    # Given: Datos con campos opcionales no informados (None/Vacíos)
-    home_team = Team(id=TeamId("unicaja"), name="Unicaja Málaga")
-    away_team = Team(id=TeamId("baskonia"), name="Baskonia")
+@pytest.fixture
+def use_case(mock_match_repository: Mock) -> ProcessScrapedMatchesUseCase:
+    return ProcessScrapedMatchesUseCase(match_repository=mock_match_repository)
 
-    match_time = datetime(2026, 11, 15, 18, 0, tzinfo=UTC)
-    scraped_match = Match(
-        id=MatchId("2026-11-15-unicaja-baskonia"),
-        home_team=home_team,
-        away_team=away_team,
-        start_time=match_time,
-        channel=None,  # El scraper no encontró canal de TV asignado
-        league=None,   # Tampoco se extrajo la competición
-        status=MatchStatus.SCHEDULED,
-    )
 
-    use_case = ProcessScrapedMatchesUseCase(team_repo, match_repo)
-
-    # When: Se procesa el partido incompleto
-    use_case.execute([scraped_match])
-
-    # Then: Se verifica que se guarda sin errores y preserva los valores nulos
-    saved_match = match_repo.find_by_id(scraped_match.id)
-    assert saved_match is not None
-    assert saved_match.channel is None
-    assert saved_match.league is None
-
-    # Verificamos que los datos requeridos mínimos sí persisten correctamente
-    assert saved_match.home_team.name == "Unicaja Málaga"
-    assert saved_match.away_team.name == "Baskonia"
-    assert saved_match.start_time == match_time
-
-def test_process_scraped_matches_updates_existing_match_information(
-    team_repo, match_repo
-):
-    # Given: Un partido ya existente en el repositorio sin canal asignado
-    team_home = Team(id=TeamId("valencia-basket"), name="Valencia Basket")
-    team_away = Team(id=TeamId("gran-canaria"), name="Dreamland Gran Canaria")
-    match_id = MatchId("2026-12-01-valencia-granca")
-    match_time = datetime(2026, 12, 1, 18, 30, tzinfo=UTC)
-
-    initial_match = Match(
-        id=match_id,
-        home_team=team_home,
-        away_team=team_away,
-        start_time=match_time,
-        channel=None,  # Aún no hay canal
+def test_process_scraped_match_creates_and_saves_match(
+    use_case: ProcessScrapedMatchesUseCase,
+    mock_match_repository: Mock,
+) -> None:
+    # Given
+    match_date = datetime(2026, 10, 25, 20, 0, tzinfo=UTC)
+    scraped_dto = ScrapedMatchDTO(
+        home_team_id=TeamId(value="real-madrid"),
+        away_team_id=TeamId(value="barcelona"),
+        status="FINISHED",
+        start_time=match_date,
+        home_score=88,
+        away_score=85,
+        channel="ESPN",
         league="ACB",
-        status=MatchStatus.SCHEDULED,
     )
-    
-    # Guardamos el estado previo en los repositorios
-    team_repo.save(team_home)
-    team_repo.save(team_away)
-    match_repo.save(initial_match)
 
-    # Scraper obtiene la información actualizada con canal confirmado
-    updated_scraped_match = Match(
-        id=match_id,
-        home_team=team_home,
-        away_team=team_away,
-        start_time=match_time,
-        channel="Movistar Plus+",  # Canal recién asignado
+    # When
+    processed_match = use_case.execute(scraped_dto)
+
+    # Then
+    assert processed_match.id.value == "real-madrid-vs-barcelona-2026-10-25"
+    assert processed_match.home_team_id == TeamId(value="real-madrid")
+    assert processed_match.away_team_id == TeamId(value="barcelona")
+    assert processed_match.start_time == match_date
+    assert processed_match.status == MatchStatus.FINISHED
+
+    assert processed_match.score is not None
+    assert processed_match.score.home == 88
+    assert processed_match.score.away == 85
+    assert processed_match.channel == "ESPN"
+    assert processed_match.league == "ACB"
+
+    mock_match_repository.save.assert_called_once_with(processed_match)
+
+
+def test_process_scraped_match_without_score(
+    use_case: ProcessScrapedMatchesUseCase,
+    mock_match_repository: Mock,
+) -> None:
+    # Given
+    match_date = datetime(2026, 11, 15, 18, 0, tzinfo=UTC)
+    scraped_dto = ScrapedMatchDTO(
+        home_team_id=TeamId(value="baskonia"),
+        away_team_id=TeamId(value="valencia-basket"),
+        start_time=match_date,
+        status="SCHEDULED",
+        home_score=None,
+        away_score=None,
+        channel=None,
+        league=None,
+    )
+
+    # When
+    processed_match = use_case.execute(scraped_dto)
+
+    # Then
+    assert processed_match.id.value == "baskonia-vs-valencia-basket-2026-11-15"
+    assert processed_match.home_team_id == TeamId(value="baskonia")
+    assert processed_match.away_team_id == TeamId(value="valencia-basket")
+    assert processed_match.start_time == match_date
+    assert processed_match.status == MatchStatus.SCHEDULED
+    assert processed_match.score is None
+    assert processed_match.channel is None
+    assert processed_match.league is None
+
+    mock_match_repository.save.assert_called_once_with(processed_match)
+
+
+def test_process_scraped_match_updates_existing_match_with_score_and_no_channel(
+    use_case: ProcessScrapedMatchesUseCase,
+    mock_match_repository: Mock,
+) -> None:
+    # Given
+    match_date = datetime(2026, 10, 25, 20, 0, tzinfo=UTC)
+    scraped_updated_dto = ScrapedMatchDTO(
+        home_team_id=TeamId(value="real-madrid"),
+        away_team_id=TeamId(value="barcelona"),
+        start_time=match_date,
+        status="FINISHED",
+        home_score=92,
+        away_score=88,
+        channel=None,
         league="ACB",
-        status=MatchStatus.SCHEDULED,
     )
 
-    use_case = ProcessScrapedMatchesUseCase(team_repo, match_repo)
+    # When
+    updated_match = use_case.execute(scraped_updated_dto)
 
-    # When: Reingerimos el partido con los nuevos datos
-    use_case.execute([updated_scraped_match])
+    # Then
+    assert updated_match.id.value == "real-madrid-vs-barcelona-2026-10-25"
+    assert updated_match.home_team_id == TeamId(value="real-madrid")
+    assert updated_match.away_team_id == TeamId(value="barcelona")
+    assert updated_match.start_time == match_date
+    assert updated_match.status == MatchStatus.FINISHED
+    assert updated_match.score is not None
+    assert updated_match.score.home == 92
+    assert updated_match.score.away == 88
+    assert updated_match.channel is None
+    assert updated_match.league == "ACB"
 
-    # Then: Verificamos que el registro en la base de datos se actualizó correctamente
-    saved_match = match_repo.find_by_id(match_id)
-    assert saved_match is not None
-    assert saved_match.channel == "Movistar Plus+"
-    assert saved_match.id == match_id
+    mock_match_repository.save.assert_called_once_with(updated_match)

@@ -1,20 +1,39 @@
+from unittest.mock import Mock
+
 from src.application.get_available_teams_use_case import GetAvailableTeamsUseCase
 from src.domain.entities import Team, TeamId
 
 
-def test_get_available_teams_returns_all_stored_teams(team_repo):
+def test_get_available_teams_returns_all_stored_teams(
+    mock_team_repo: Mock,
+):
     # Given
-    team_a = Team(id=TeamId("real-madrid"), name="Real Madrid")
-    team_b = Team(id=TeamId("barcelona"), name="FC Barcelona")
-    team_repo.save(team_a)
-    team_repo.save(team_b)
+    real_madrid = Team(
+        id=TeamId("real-madrid"),
+        name="Real Madrid",
+    )
 
-    use_case = GetAvailableTeamsUseCase(team_repo)
+    valencia = Team(
+        id=TeamId("valencia-basket"),
+        name="Valencia Basket",
+    )
+
+    mock_team_repo.find_all.return_value = [
+        real_madrid,
+        valencia,
+    ]
+
+    use_case = GetAvailableTeamsUseCase(
+        mock_team_repo,
+    )
 
     # When
-    teams = use_case.execute()
+    result = use_case.execute()
 
     # Then
-    assert len(teams) == 2
-    assert any(t.id == TeamId("real-madrid") for t in teams)
-    assert any(t.id == TeamId("barcelona") for t in teams)
+    assert result == [
+        real_madrid,
+        valencia,
+    ]
+
+    mock_team_repo.find_all.assert_called_once_with()

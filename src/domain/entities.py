@@ -1,10 +1,11 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 
 # ------------------------------------------------------------------
 # Value Objects (Identificadores)
 # ------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class UserId:
@@ -18,24 +19,51 @@ class TeamId:
 
 @dataclass(frozen=True)
 class MatchId:
-    value: str  # ej: "2026-08-20-rm-barca"
+    value: str
+
+    def __post_init__(self) -> None:
+        if not self.value or not self.value.strip():
+            raise ValueError("El MatchId no puede estar vacío.")
+
+    @classmethod
+    def create(cls, home_team_id: TeamId, away_team_id: TeamId, start_time: date | datetime) -> "MatchId":
+        """
+        Genera un MatchId determinista y legible.
+        Ejemplo: real-madrid-vs-barcelona-2026-10-25
+        """
+        date_str = start_time.strftime("%Y-%m-%d") if isinstance(start_time, (date, datetime)) else str(start_time)
+        formatted_id = f"{home_team_id.value}-vs-{away_team_id.value}-{date_str}".lower().strip()
+        return cls(value=formatted_id)
+
+    def __str__(self) -> str:
+        return self.value
+
+
+@dataclass(frozen=True)
+class Score:
+    home: int
+    away: int
+
+    def __post_init__(self) -> None:
+        if self.home < 0 or self.away < 0:
+            raise ValueError("El marcador no puede contener valores negativos.")
 
 
 # ------------------------------------------------------------------
 # Enums
 # ------------------------------------------------------------------
 
+
 class MatchStatus(str, Enum):
     SCHEDULED = "SCHEDULED"
-    LIVE = "LIVE"
     FINISHED = "FINISHED"
-    POSTPONED = "POSTPONED"
     CANCELLED = "CANCELLED"
 
 
 # ------------------------------------------------------------------
 # Entities
 # ------------------------------------------------------------------
+
 
 @dataclass
 class Team:
@@ -48,11 +76,12 @@ class Team:
 @dataclass
 class Match:
     id: MatchId
-    home_team: Team
-    away_team: Team
+    home_team_id: TeamId
+    away_team_id: TeamId
     start_time: datetime
-    channel: str
-    league: str
+    score: Score | None = None
+    channel: str | None = None
+    league: str | None = None
     status: MatchStatus = MatchStatus.SCHEDULED
 
 

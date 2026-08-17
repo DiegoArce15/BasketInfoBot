@@ -13,11 +13,11 @@ class AddFavoriteTeamUseCase:
     def execute(self, user_id: UserId, team_id: TeamId) -> None:
         user = self.user_repo.find_by_id(user_id)
         if not user:
-            raise ValueError(f"Usuario con ID {user_id.value} no encontrado.")
+            raise ValueError(f"Usuario con id {user_id.value} no encontrado")
 
         team = self.team_repo.find_by_id(team_id)
         if not team:
-            raise ValueError(f"El equipo {team_id.value} no existe.")
+            raise ValueError(f"El equipo {team_id.value} no existe")
 
         if team_id not in user.favorite_team_ids:
             user.favorite_team_ids.append(team_id)

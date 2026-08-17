@@ -13,9 +13,5 @@ class TeamRepository(ABC):
         """Busca un equipo por su TeamId."""
 
     @abstractmethod
-    def search_by_name(self, name_query: str) -> list[Team]:
-        """Busca equipos cuyo nombre coincida o contenga la cadena buscada."""
-
-    @abstractmethod
     def find_all(self) -> list[Team]:
         """Retorna todos los equipos registrados."""

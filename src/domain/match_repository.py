@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities import Match, MatchId, MatchStatus, TeamId
+from src.domain.entities import Match, MatchId, MatchStatus, TeamId, UserId
 
 
 class MatchRepository(ABC):
@@ -13,8 +13,8 @@ class MatchRepository(ABC):
         """Busca un partido por su MatchId."""
 
     @abstractmethod
-    def find_upcoming_by_team(self, team_id: TeamId) -> list[Match]:
-        """Retorna los próximos partidos de un equipo (SCHEDULED)."""
+    def find_upcoming_by_user(self, user_id: UserId) -> list[Match]:
+        """Retorna los próximos partidos de interés para un usuario especifico (SCHEDULED)."""
 
     @abstractmethod
     def find_by_status(self, status: MatchStatus) -> list[Match]:
