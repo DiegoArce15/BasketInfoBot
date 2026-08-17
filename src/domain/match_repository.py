@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities import Match, MatchId, MatchStatus, TeamId, UserId
+from src.domain.entities import Match, MatchId, MatchStatus, UserId
 
 
 class MatchRepository(ABC):

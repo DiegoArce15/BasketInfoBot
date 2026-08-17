@@ -11,10 +11,16 @@ from enum import Enum
 class UserId:
     value: int  # Usualmente el chat_id de Telegram
 
+    def __int__(self) -> int:
+        return self.value
+
 
 @dataclass(frozen=True)
 class TeamId:
     value: str  # ej: "real-madrid", "fc-barcelona"
+
+    def __str__(self) -> str:
+        return self.value
 
 
 @dataclass(frozen=True)
