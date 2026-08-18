@@ -56,11 +56,19 @@ def upgrade() -> None:
             home_score INTEGER,
             away_score INTEGER,
             start_time TIMESTAMPTZ NOT NULL,
-            channel VARCHAR(100) DEFAULT NULL,
             league VARCHAR(100) DEFAULT NULL,
             status VARCHAR(30) NOT NULL,
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+    # Tabla de canales
+    op.execute("""
+        CREATE TABLE match_channels (
+            match_id VARCHAR(100) NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
+            channel_name VARCHAR(100) NOT NULL,
+            PRIMARY KEY (match_id, channel_name)
         );
     """)
 

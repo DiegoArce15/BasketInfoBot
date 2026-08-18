@@ -119,11 +119,11 @@ class TelegramBotHandlers:
         lines = ["🏀 *Próximos Partidos:*\n"]
         for match in matches:
             date_str = match.start_time.strftime("%d/%m/%Y a las %H:%M")
-            channel_str = match.channel if match.channel else "Sin confirmar"
+            channels = match.channels if match.channels else "Sin confirmar"
             lines.append(
                 f"• *{match.home_team_name}* vs *{match.away_team_name}*\n"
                 f"  🗓️ {date_str} UTC\n"
-                f"  📺 TV: {channel_str}\n"
+                f"  📺 TVs: {channels}\n"
             )
 
         await update.message.reply_markdown("\n".join(lines))

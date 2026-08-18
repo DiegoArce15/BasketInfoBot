@@ -33,7 +33,7 @@ def test_process_scraped_match_creates_and_saves_match(
         start_time=match_date,
         home_score=88,
         away_score=85,
-        channel="ESPN",
+        channels=["ESPN"],
         league="ACB",
     )
 
@@ -50,7 +50,7 @@ def test_process_scraped_match_creates_and_saves_match(
     assert processed_match.score is not None
     assert processed_match.score.home == 88
     assert processed_match.score.away == 85
-    assert processed_match.channel == "ESPN"
+    assert processed_match.channels == ["ESPN"]
     assert processed_match.league == "ACB"
 
     mock_match_repository.save.assert_called_once_with(processed_match)
@@ -69,7 +69,7 @@ def test_process_scraped_match_without_score(
         status="SCHEDULED",
         home_score=None,
         away_score=None,
-        channel=None,
+        channels=None,
         league=None,
     )
 
@@ -83,7 +83,7 @@ def test_process_scraped_match_without_score(
     assert processed_match.start_time == match_date
     assert processed_match.status == MatchStatus.SCHEDULED
     assert processed_match.score is None
-    assert processed_match.channel is None
+    assert processed_match.channels is None
     assert processed_match.league is None
 
     mock_match_repository.save.assert_called_once_with(processed_match)
@@ -102,7 +102,7 @@ def test_process_scraped_match_updates_existing_match_with_score_and_no_channel(
         status="FINISHED",
         home_score=92,
         away_score=88,
-        channel=None,
+        channels=None,
         league="ACB",
     )
 
@@ -118,7 +118,7 @@ def test_process_scraped_match_updates_existing_match_with_score_and_no_channel(
     assert updated_match.score is not None
     assert updated_match.score.home == 92
     assert updated_match.score.away == 88
-    assert updated_match.channel is None
+    assert updated_match.channels is None
     assert updated_match.league == "ACB"
 
     mock_match_repository.save.assert_called_once_with(updated_match)

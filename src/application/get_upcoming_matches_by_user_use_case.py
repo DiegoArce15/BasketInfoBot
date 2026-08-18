@@ -13,7 +13,7 @@ class MatchResponseDTO:
     away_team_name: str
     start_time: datetime
     status: str
-    channel: str | None = None
+    channels: list[str] | None = None
     league: str | None = None
     score: str | None = None  # ej: "88 - 85" o None si es SCHEDULED
 
@@ -59,7 +59,7 @@ class GetUpcomingMatchesByUserUseCase:
                     away_team_name=away_name,
                     start_time=match.start_time,
                     status=match.status.value,
-                    channel=match.channel,
+                    channels=match.channels,
                     league=match.league,
                     score=score_str,
                 )

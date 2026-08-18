@@ -5,7 +5,7 @@ from src.application.get_upcoming_matches_by_user_use_case import (
     GetUpcomingMatchesByUserUseCase,
     MatchResponseDTO,
 )
-from src.domain.entities import Match, MatchId, MatchStatus, Team, TeamId, UserId
+from src.domain.entities import Channel, Match, MatchId, MatchStatus, Team, TeamId, UserId
 
 
 def test_get_upcoming_matches_for_user(
@@ -24,7 +24,7 @@ def test_get_upcoming_matches_for_user(
         start_time=match_date,
         score=None,
         status=MatchStatus.SCHEDULED,
-        channel="ESPN",
+        channels=[Channel("ESPN")],
         league="ACB",
     )
     home_team = Team(id=TeamId("real-madrid"), name="Real Madrid")
@@ -58,7 +58,7 @@ def test_get_upcoming_matches_for_user(
     assert dto.start_time == match_date
     assert dto.status == "SCHEDULED"
     assert dto.score is None
-    assert dto.channel == "ESPN"
+    assert dto.channels == [Channel("ESPN")]
     assert dto.league == "ACB"
 
     # 2. Verificamos que se interactuó con los repositorios adecuadamente

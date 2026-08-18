@@ -13,7 +13,7 @@ class ScrapedMatchDTO:
     status: str  # Ej: "SCHEDULED", "FINISHED", "CANCELLED"
     home_score: int | None = None
     away_score: int | None = None
-    channel: str | None = None
+    channels: list[str] | None = None
     league: str | None = None
 
 
@@ -41,7 +41,7 @@ class ProcessScrapedMatchesUseCase:
             home_team_id=dto.home_team_id,
             away_team_id=dto.away_team_id,
             score=score,
-            channel=dto.channel,
+            channels=dto.channels,
             league=dto.league,
             start_time=dto.start_time,
             status=MatchStatus(dto.status),

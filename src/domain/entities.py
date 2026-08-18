@@ -52,6 +52,10 @@ class MatchId:
     def __str__(self) -> str:
         return self.value
 
+@dataclass(frozen=True)
+class Channel:
+    name: str
+
 
 @dataclass(frozen=True)
 class Score:
@@ -94,7 +98,7 @@ class Match:
     away_team_id: TeamId
     start_time: datetime
     score: Score | None = None
-    channel: str | None = None
+    channels: list[Channel] = field(default_factory=list)
     league: str | None = None
     status: MatchStatus = MatchStatus.SCHEDULED
 
