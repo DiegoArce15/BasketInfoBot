@@ -1,9 +1,9 @@
-# src/infrastructure/out_adapters/persistence/sql_match_repository.py
+from uuid import UUID
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from src.domain.entities import Match, MatchId, MatchStatus, Score, TeamId, UserId
+from src.domain.entities import Match, MatchId, Score, TeamId, UserId
 from src.domain.match_repository import MatchRepository
 
 
@@ -68,32 +68,20 @@ class PostgresMatchPersistence(MatchRepository):
     def find_upcoming_by_user(self, user_id: UserId, limit: int = 10) -> list[Match]:
         """Busca los próximos partidos de interés para un usuario especifico."""
         query = """
-            SELECT DISTINCT m.id, m.home_team_id, m.away_team_id, m.start_time, m.home_score, m.away_score, m.status
+            SELECT m.id, m.home_team_id, m.away_team_id, m.start_time, m.home_score, m.away_score, m.channel, m.league, m.status
             FROM matches m
-            INNER JOIN user_favorite_teams uft 
-                ON uft.team_id = m.home_team_id OR uft.team_id = m.away_team_id
-            WHERE uft.user_id = %(user_id)s
-              AND m.status = 'SCHEDULED'
-              AND m.start_time >= NOW()
+            WHERE m.status = 'SCHEDULED'
+            AND EXISTS (
+                SELECT 1 
+                FROM user_favorite_teams uft 
+                WHERE uft.user_id = %(user_id)s
+                    AND (uft.team_id = m.home_team_id OR uft.team_id = m.away_team_id)
+            )
             ORDER BY m.start_time ASC
             LIMIT %(limit)s;
         """
         with self._get_connection() as conn, conn.cursor() as cursor:
             cursor.execute(query, {"user_id": str(user_id.value), "limit": limit})
-            rows = cursor.fetchall()
-
-            return [self._map_row_to_match(row) for row in rows]
-
-    def find_by_status(self, status: MatchStatus) -> list[Match]:
-        """Busca todos los partidos que tengan un estado específico."""
-        query = """
-            SELECT id, home_team_id, away_team_id, start_time, home_score, away_score, channel, status
-            FROM matches
-            WHERE status = %(status)s
-            ORDER BY start_time DESC;
-        """
-        with self._get_connection() as conn, conn.cursor() as cursor:
-            cursor.execute(query, {"status": str(status.value)})
             rows = cursor.fetchall()
 
             return [self._map_row_to_match(row) for row in rows]
@@ -106,8 +94,8 @@ class PostgresMatchPersistence(MatchRepository):
             
         return Match(
             id=MatchId(row["id"]),
-            home_team_id=TeamId(row["home_team_id"]),
-            away_team_id=TeamId(row["away_team_id"]),
+            home_team_id=TeamId(UUID(row["home_team_id"])),
+            away_team_id=TeamId(UUID(row["away_team_id"])),
             start_time=row["start_time"],
             score=score,
             channel=row["channel"],

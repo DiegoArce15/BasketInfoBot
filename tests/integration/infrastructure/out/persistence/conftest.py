@@ -40,22 +40,17 @@ def seed_teams(db_url, run_migrations):
     Inserta los equipos fijos de prueba UNA SOLA VEZ por sesión,
     inmediatamente después de ejecutar las migraciones.
     """
-    teams_data = [
-        ("real-madrid", "Real Madrid"),
-        ("barcelona", "Barcelona"),
-        ("saski-baskonia", "Saski Baskonia"),
-        ("valencia-basket", "Valencia Basket"),
-        ("ucam-murcia", "UCAM Murcia"),
-    ]
 
     with psycopg2.connect(db_url) as conn, conn.cursor() as cursor:
-        cursor.executemany(
+        cursor.execute(
             """
             INSERT INTO teams (id, name)
-            VALUES (%s, %s)
+            VALUES 
+                ('00000000-0000-0000-0000-000000000001', 'Real Madrid'),
+                ('00000000-0000-0000-0000-000000000002', 'Barcelona'),
+                ('00000000-0000-0000-0000-000000000003', 'Saski Baskonia'),
+                ('00000000-0000-0000-0000-000000000004', 'Valencia Basket'),
+                ('00000000-0000-0000-0000-000000000005', 'UCAM Murcia')
             ON CONFLICT (id) DO NOTHING;
-            """,
-            teams_data,
+            """
         )
-
-    yield teams_data
