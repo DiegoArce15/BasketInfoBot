@@ -34,14 +34,14 @@ def run_migrations(db_url, pytestconfig):
     command.upgrade(config, "head")
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.fixture(scope="function", autouse=True)
 def seed_teams(db_url, run_migrations):
     """
-    Inserta los equipos fijos de prueba UNA SOLA VEZ por sesión,
-    inmediatamente después de ejecutar las migraciones.
+    Limpia y reinicia los equipos de prueba antes de CADA test.
     """
-
     with psycopg2.connect(db_url) as conn, conn.cursor() as cursor:
+        cursor.execute("TRUNCATE TABLE teams RESTART IDENTITY CASCADE;")
+        
         cursor.execute(
             """
             INSERT INTO teams (id, name)
@@ -50,7 +50,7 @@ def seed_teams(db_url, run_migrations):
                 ('00000000-0000-0000-0000-000000000002', 'Barcelona'),
                 ('00000000-0000-0000-0000-000000000003', 'Saski Baskonia'),
                 ('00000000-0000-0000-0000-000000000004', 'Valencia Basket'),
-                ('00000000-0000-0000-0000-000000000005', 'UCAM Murcia')
-            ON CONFLICT (id) DO NOTHING;
+                ('00000000-0000-0000-0000-000000000005', 'UCAM Murcia');
             """
         )
+        conn.commit()

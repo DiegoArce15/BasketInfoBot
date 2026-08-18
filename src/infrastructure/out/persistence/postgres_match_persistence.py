@@ -8,7 +8,6 @@ from src.domain.match_repository import MatchRepository
 
 
 class PostgresMatchPersistence(MatchRepository):
-    """Implementación de la persistencia de partidos utilizando PostgreSQL y psycopg2."""
 
     def __init__(self, db_url: str) -> None:
         self._db_url = db_url
@@ -17,7 +16,6 @@ class PostgresMatchPersistence(MatchRepository):
         return psycopg2.connect(self._db_url, cursor_factory=RealDictCursor)
 
     def save(self, match: Match) -> None:
-        """Inserta o actualiza un partido usando UPSERT de PostgreSQL."""
         query = """
             INSERT INTO matches (id, home_team_id, away_team_id, start_time, home_score, away_score, channel, league, status)
             VALUES (%(id)s, %(home_team_id)s, %(away_team_id)s, %(start_time)s, %(home_score)s, %(away_score)s, %(channel)s, %(league)s, %(status)s)
@@ -50,7 +48,6 @@ class PostgresMatchPersistence(MatchRepository):
             )
 
     def find_by_id(self, match_id: MatchId) -> Match | None:
-        """Obtiene un partido por su ID."""
         query = """
             SELECT id, home_team_id, away_team_id, start_time, home_score, away_score, channel, league, status
             FROM matches
@@ -66,7 +63,6 @@ class PostgresMatchPersistence(MatchRepository):
             return self._map_row_to_match(row)
     
     def find_upcoming_by_user(self, user_id: UserId, limit: int = 10) -> list[Match]:
-        """Busca los próximos partidos de interés para un usuario especifico."""
         query = """
             SELECT m.id, m.home_team_id, m.away_team_id, m.start_time, m.home_score, m.away_score, m.channel, m.league, m.status
             FROM matches m
@@ -87,7 +83,6 @@ class PostgresMatchPersistence(MatchRepository):
             return [self._map_row_to_match(row) for row in rows]
 
     def _map_row_to_match(self, row: dict) -> Match:
-        """Mapea una fila de PostgreSQL a la Entidad de Dominio Match."""
         score = None
         if row["home_score"] is not None and row["away_score"] is not None:
             score = Score(home=row["home_score"], away=row["away_score"])

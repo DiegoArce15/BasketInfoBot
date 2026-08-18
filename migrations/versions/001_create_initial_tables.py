@@ -18,7 +18,7 @@ def upgrade() -> None:
         CREATE TABLE teams (
             id UUID PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
-            country VARCHAR(50) DEFAULT 'Spain',
+            country VARCHAR(50),
             logo_url TEXT,
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
