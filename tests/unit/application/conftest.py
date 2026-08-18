@@ -15,3 +15,7 @@ def mock_team_repo() -> Mock:
 @pytest.fixture
 def mock_match_repo() -> Mock:
     return Mock()
+
+@pytest.fixture
+def mock_id_generator() -> Mock:
+    return Mock()

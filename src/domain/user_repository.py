@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities import User, UserId
+from src.domain.entities import TelegramId, User, UserId
 
 
 class UserRepository(ABC):
@@ -11,3 +11,7 @@ class UserRepository(ABC):
     @abstractmethod
     def find_by_id(self, user_id: UserId) -> User | None:
         """Busca un usuario por su UserId."""
+
+    @abstractmethod
+    def find_by_telegram_id(self, telegram_id: TelegramId) -> User | None:
+        """Busca un usuario por su TelegramId."""
