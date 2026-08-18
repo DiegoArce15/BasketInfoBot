@@ -146,7 +146,7 @@ async def test_upcoming_matches_handler_shows_upcoming_matches(
         away_team_name="Valencia Basket",
         start_time=datetime(2026, 8, 20, 20, 30, tzinfo=UTC),
         score=None,
-        channels=["Movistar"],
+        channels=["Movistar", "ESPN"],
         league="Liga ACB",
         status="SCHEDULED",
     )
@@ -172,4 +172,4 @@ async def test_upcoming_matches_handler_shows_upcoming_matches(
     assert "Real Madrid" in message
     assert "Valencia Basket" in message
     assert "20/08/2026 a las 20:30" in message
-    assert "Movistar" in message
+    assert "Movistar, ESPN" in message
