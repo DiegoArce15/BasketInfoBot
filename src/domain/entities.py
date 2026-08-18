@@ -1,3 +1,4 @@
+import uuid
 from dataclasses import dataclass, field
 from datetime import date, datetime
 from enum import Enum
@@ -9,12 +10,17 @@ from enum import Enum
 
 @dataclass(frozen=True)
 class UserId:
-    value: int  # Usualmente el chat_id de Telegram
+    value: uuid.UUID
+
+
+@dataclass(frozen=True)
+class TelegramId:
+    value: int
 
 
 @dataclass(frozen=True)
 class TeamId:
-    value: str  # ej: "real-madrid", "fc-barcelona"
+    value: uuid.UUID
 
 
 @dataclass(frozen=True)
@@ -26,13 +32,21 @@ class MatchId:
             raise ValueError("El MatchId no puede estar vacío.")
 
     @classmethod
-    def create(cls, home_team_id: TeamId, away_team_id: TeamId, start_time: date | datetime) -> "MatchId":
+    def create(
+        cls, home_team_id: TeamId, away_team_id: TeamId, start_time: date | datetime
+    ) -> "MatchId":
         """
         Genera un MatchId determinista y legible.
         Ejemplo: real-madrid-vs-barcelona-2026-10-25
         """
-        date_str = start_time.strftime("%Y-%m-%d") if isinstance(start_time, (date, datetime)) else str(start_time)
-        formatted_id = f"{home_team_id.value}-vs-{away_team_id.value}-{date_str}".lower().strip()
+        date_str = (
+            start_time.strftime("%Y-%m-%d")
+            if isinstance(start_time, (date, datetime))
+            else str(start_time)
+        )
+        formatted_id = (
+            f"{home_team_id.value}-vs-{away_team_id.value}-{date_str}".lower().strip()
+        )
         return cls(value=formatted_id)
 
     def __str__(self) -> str:
@@ -88,5 +102,12 @@ class Match:
 @dataclass
 class User:
     id: UserId
+    telegram_id: TelegramId | None
     username: str | None = None
-    favorite_team_ids: list[TeamId] = field(default_factory=list)
+
+    @dataclass(frozen=True)
+    class FavoriteTeam:
+        team_id: TeamId
+        notifications_enabled: bool = True
+
+    favorite_teams: list[FavoriteTeam] = field(default_factory=list)

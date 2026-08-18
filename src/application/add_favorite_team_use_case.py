@@ -19,6 +19,6 @@ class AddFavoriteTeamUseCase:
         if not team:
             raise ValueError(f"El equipo {team_id.value} no existe")
 
-        if team_id not in user.favorite_team_ids:
-            user.favorite_team_ids.append(team_id)
+        if team_id not in user.favorite_teams:
+            user.favorite_teams.append(team_id)
             self.user_repo.save(user)
