@@ -16,7 +16,6 @@ from src.domain.match_repository import MatchRepository
 
 
 class PostgresMatchPersistence(MatchRepository):
-
     def __init__(self, db_url: str) -> None:
         self._db_url = db_url
 
@@ -66,7 +65,8 @@ class PostgresMatchPersistence(MatchRepository):
                 query="""
                     DELETE FROM match_channels WHERE match_id = %(match_id)s;
                 """,
-                vars={"match_id": str(match.id.value)})
+                vars={"match_id": str(match.id.value)},
+            )
 
             for channel in match.channels:
                 cursor.execute(
@@ -97,7 +97,6 @@ class PostgresMatchPersistence(MatchRepository):
 
             return self._fetch_match_with_channels(cursor, match_row)
 
-    
     def find_upcoming_by_user(self, user_id: UserId, limit: int = 10) -> list[Match]:
         query = """
             SELECT m.id, m.home_team_id, m.away_team_id, m.start_time, m.home_score, m.away_score, m.league, m.status

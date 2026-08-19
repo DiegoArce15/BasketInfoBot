@@ -60,6 +60,7 @@ def test_save(repository):
 
     assert saved_user == user
 
+
 def test_update_user_info(repository, seed_user_with_favorite_team):
     # Given
     existing_user = repository.find_by_id(USER_ID_1)
@@ -80,6 +81,7 @@ def test_update_user_info(repository, seed_user_with_favorite_team):
     # Then
     saved_user = repository.find_by_id(USER_ID_1)
     assert saved_user == updated_user_data
+
 
 def test_update_user_favorite_teams(repository, seed_user_with_favorite_team):
     # Given
@@ -107,6 +109,7 @@ def test_update_user_favorite_teams(repository, seed_user_with_favorite_team):
         User.FavoriteTeam(team_id=TEAM_ID_2, notifications_enabled=False),
     ]
 
+
 def test_find_by_id_should_return_user(repository, seed_user_with_favorite_team):
     # When
     result = repository.find_by_id(USER_ID_1)
@@ -122,7 +125,9 @@ def test_find_by_id_should_return_user(repository, seed_user_with_favorite_team)
     )
 
 
-def test_find_by_id_should_return_none_when_user_does_not_exist(repository, seed_user_with_favorite_team):
+def test_find_by_id_should_return_none_when_user_does_not_exist(
+    repository, seed_user_with_favorite_team
+):
     # When
     result = repository.find_by_id(USER_ID_404)
 
@@ -130,7 +135,9 @@ def test_find_by_id_should_return_none_when_user_does_not_exist(repository, seed
     assert result == None
 
 
-def test_find_by_telegram_id_should_return_user(repository, seed_user_with_favorite_team):
+def test_find_by_telegram_id_should_return_user(
+    repository, seed_user_with_favorite_team
+):
     # When
     result = repository.find_by_telegram_id(TELEGRAM_ID_1)
 
@@ -145,7 +152,9 @@ def test_find_by_telegram_id_should_return_user(repository, seed_user_with_favor
     )
 
 
-def test_find_by_telegram_id_should_return_none_when_user_does_not_exist(repository, seed_user_with_favorite_team):
+def test_find_by_telegram_id_should_return_none_when_user_does_not_exist(
+    repository, seed_user_with_favorite_team
+):
     # When
     result = repository.find_by_telegram_id(TELEGRAM_ID_404)
 

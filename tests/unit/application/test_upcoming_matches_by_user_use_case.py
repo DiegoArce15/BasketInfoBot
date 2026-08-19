@@ -5,7 +5,15 @@ from src.application.get_upcoming_matches_by_user_use_case import (
     GetUpcomingMatchesByUserUseCase,
     MatchResponseDTO,
 )
-from src.domain.entities import Channel, Match, MatchId, MatchStatus, Team, TeamId, UserId
+from src.domain.entities import (
+    Channel,
+    Match,
+    MatchId,
+    MatchStatus,
+    Team,
+    TeamId,
+    UserId,
+)
 
 
 def test_get_upcoming_matches_for_user(

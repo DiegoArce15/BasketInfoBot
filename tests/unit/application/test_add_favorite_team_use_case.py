@@ -81,7 +81,9 @@ def test_add_favorite_team_fails_when_team_does_not_exist(
     )
 
     # When / Then
-    with pytest.raises(ValueError, match="El equipo 00000000-0000-0000-0000-000000000404 no existe"):
+    with pytest.raises(
+        ValueError, match="El equipo 00000000-0000-0000-0000-000000000404 no existe"
+    ):
         use_case.execute(
             user_id=USER_ID_1,
             team_id=TEAM_ID_404,

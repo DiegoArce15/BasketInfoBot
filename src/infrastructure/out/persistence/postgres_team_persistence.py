@@ -8,7 +8,6 @@ from src.domain.team_repository import TeamRepository
 
 
 class PostgresTeamPersistence(TeamRepository):
-
     def __init__(self, db_url: str) -> None:
         self._db_url = db_url
 
@@ -31,7 +30,7 @@ class PostgresTeamPersistence(TeamRepository):
                     "id": str(team.id.value),
                     "name": team.name,
                     "country": team.country,
-                    "logo_url": team.logo_url
+                    "logo_url": team.logo_url,
                 },
             )
 
@@ -67,5 +66,5 @@ class PostgresTeamPersistence(TeamRepository):
             id=TeamId(UUID(row["id"])),
             name=row["name"],
             country=row["country"],
-            logo_url=row["logo_url"]
+            logo_url=row["logo_url"],
         )

@@ -42,11 +42,15 @@ class AcbScraper(MatchFetcher):
 
             date_str = date_header.text.strip()
 
-            match_cards = day_block.select("div[class*='Round-module'][class*='__days'] > div > div[class*='RoundMatch-module']")
+            match_cards = day_block.select(
+                "div[class*='Round-module'][class*='__days'] > div > div[class*='RoundMatch-module']"
+            )
 
             for card in match_cards:
                 time_el = card.select_one("p[class*='__roundMatch__time'] span")
-                time_str = time_el.text.strip().replace(" h", "") if time_el else "00:00"
+                time_str = (
+                    time_el.text.strip().replace(" h", "") if time_el else "00:00"
+                )
 
                 home_team_div = card.select_one("div[class*='__roundMatch__homeTeam']")
                 away_team_div = card.select_one("div[class*='__roundMatch__awayTeam']")
@@ -54,8 +58,12 @@ class AcbScraper(MatchFetcher):
                 if not home_team_div or not away_team_div:
                     continue
 
-                home_el = home_team_div.select_one("span[class*='__teamName--fullName']")
-                away_el = away_team_div.select_one("span[class*='__teamName--fullName']")
+                home_el = home_team_div.select_one(
+                    "span[class*='__teamName--fullName']"
+                )
+                away_el = away_team_div.select_one(
+                    "span[class*='__teamName--fullName']"
+                )
 
                 if not home_el or not away_el:
                     continue
@@ -69,7 +77,9 @@ class AcbScraper(MatchFetcher):
                 if not home_team_id or not away_team_id:
                     continue
 
-                tv_imgs = card.select("div[class*='__roundMatch__tv'] img[class*='__tvLogo']")
+                tv_imgs = card.select(
+                    "div[class*='__roundMatch__tv'] img[class*='__tvLogo']"
+                )
                 channels = [
                     Channel(name=img["alt"].strip())
                     for img in tv_imgs

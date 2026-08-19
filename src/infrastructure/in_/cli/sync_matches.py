@@ -32,10 +32,7 @@ def main() -> None:
         )
         sys.exit(1)
 
-    print(
-        f"Sincronización completada con éxito. "
-        f"{matches_count} partidos procesados."
-    )
+    print(f"Sincronización completada con éxito. {matches_count} partidos procesados.")
 
 
 if __name__ == "__main__":

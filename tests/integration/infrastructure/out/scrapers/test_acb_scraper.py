@@ -141,9 +141,7 @@ def test_parse_html_extracts_matches_correctly(
 
 def test_parse_html_ignores_unmapped_teams(acb_html_fixture: str):
     # Given: Mapeo donde solo existe uno de los dos equipos del partido
-    incomplete_mapping = {
-        "Surne Bilbao": TeamId(str(uuid.uuid4()))
-    }
+    incomplete_mapping = {"Surne Bilbao": TeamId(str(uuid.uuid4()))}
     scraper = AcbScraper(
         target_url="https://www.acb.com", team_mapping=incomplete_mapping
     )

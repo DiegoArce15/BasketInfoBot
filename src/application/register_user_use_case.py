@@ -21,9 +21,9 @@ class RegisterUserUseCase:
             return existing_user
 
         new_user = User(
-            id=UserId(self._id_generator.generate()), 
-            telegram_id=telegram_id ,
-            username=username
+            id=UserId(self._id_generator.generate()),
+            telegram_id=telegram_id,
+            username=username,
         )
         self._user_repository.save(new_user)
         return new_user

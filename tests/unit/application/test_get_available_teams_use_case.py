@@ -12,10 +12,19 @@ def test_get_available_teams_returns_all_stored_teams(
     mock_team_repo: Mock,
 ):
     # Given
-    real_madrid = Team(id=TEAM_ID_1, name="Real Madrid",)
-    valencia = Team(id=TEAM_ID_2, name="Valencia Basket",)
+    real_madrid = Team(
+        id=TEAM_ID_1,
+        name="Real Madrid",
+    )
+    valencia = Team(
+        id=TEAM_ID_2,
+        name="Valencia Basket",
+    )
 
-    mock_team_repo.find_all.return_value = [ real_madrid, valencia, ]
+    mock_team_repo.find_all.return_value = [
+        real_madrid,
+        valencia,
+    ]
 
     use_case = GetAvailableTeamsUseCase(
         mock_team_repo,
@@ -25,6 +34,9 @@ def test_get_available_teams_returns_all_stored_teams(
     result = use_case.execute()
 
     # Then
-    assert result == [ real_madrid, valencia, ]
+    assert result == [
+        real_madrid,
+        valencia,
+    ]
 
     mock_team_repo.find_all.assert_called_once_with()

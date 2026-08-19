@@ -23,7 +23,9 @@ class TelegramBotHandlers:
         self.register_user_use_case = register_user_use_case
         self.add_favorite_team_use_case = add_favorite_team_use_case
         self.get_available_teams_use_case = get_available_teams_use_case
-        self.get_upcoming_matches_by_user_use_case = get_upcoming_matches_by_user_use_case
+        self.get_upcoming_matches_by_user_use_case = (
+            get_upcoming_matches_by_user_use_case
+        )
 
     async def start_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
@@ -71,9 +73,9 @@ class TelegramBotHandlers:
         await update.message.reply_text(
             "🏀 *Selecciona tu equipo favorito:*",
             reply_markup=reply_markup,
-            parse_mode="Markdown"
+            parse_mode="Markdown",
         )
-        
+
     async def favorite_callback_handler(
         self, update: Update, context: ContextTypes.DEFAULT_TYPE
     ) -> None:
@@ -89,12 +91,9 @@ class TelegramBotHandlers:
 
         try:
             self.add_favorite_team_use_case.execute(
-                user_id=UserId(query.from_user.id),
-                team_id=TeamId(raw_team_id)
+                user_id=UserId(query.from_user.id), team_id=TeamId(raw_team_id)
             )
-            await query.edit_message_text(
-                "✅ ¡Equipo guardado en tus favoritos!"
-            )
+            await query.edit_message_text("✅ ¡Equipo guardado en tus favoritos!")
         except ValueError as exc:
             await query.edit_message_text(f"❌ Error: {exc!s}")
 

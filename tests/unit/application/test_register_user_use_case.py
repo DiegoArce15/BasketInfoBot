@@ -14,8 +14,7 @@ def test_register_new_user(
     mock_id_generator.generate.return_value = UUID_1
 
     use_case = RegisterUserUseCase(
-        user_repository=mock_user_repo,
-        id_generator=mock_id_generator
+        user_repository=mock_user_repo, id_generator=mock_id_generator
     )
 
     # When

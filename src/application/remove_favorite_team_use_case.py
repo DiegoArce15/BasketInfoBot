@@ -20,8 +20,7 @@ class RemoveFavoriteTeamUseCase:
             raise ValueError(f"Equipo con id {team_id.value} no encontrado")
 
         team_to_remove = next(
-            (fav for fav in user.favorite_teams if fav.team_id == team_id), 
-            None
+            (fav for fav in user.favorite_teams if fav.team_id == team_id), None
         )
 
         if team_to_remove:

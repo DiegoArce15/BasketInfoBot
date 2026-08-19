@@ -1,4 +1,3 @@
-
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -17,8 +16,8 @@ class MatchResponseDTO:
     league: str | None = None
     score: str | None = None  # ej: "88 - 85" o None si es SCHEDULED
 
-class GetUpcomingMatchesByUserUseCase:
 
+class GetUpcomingMatchesByUserUseCase:
     def __init__(
         self,
         match_repository: MatchRepository,
@@ -38,8 +37,7 @@ class GetUpcomingMatchesByUserUseCase:
         # 2. Cargar/Caché ligera de equipos necesarios para evitar consultas redundantes
         team_ids = {m.home_team_id for m in matches} | {m.away_team_id for m in matches}
         teams_map = {
-            team_id: self._team_repo.find_by_id(team_id)
-            for team_id in team_ids
+            team_id: self._team_repo.find_by_id(team_id) for team_id in team_ids
         }
 
         # 3. Construir la lista de DTOs enriquecidos
@@ -51,7 +49,9 @@ class GetUpcomingMatchesByUserUseCase:
             home_name = home_team.name if home_team else match.home_team_id
             away_name = away_team.name if away_team else match.away_team_id
 
-            score_str = f"{match.score.home} - {match.score.away}" if match.score else None
+            score_str = (
+                f"{match.score.home} - {match.score.away}" if match.score else None
+            )
 
             response.append(
                 MatchResponseDTO(

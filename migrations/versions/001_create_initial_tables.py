@@ -1,9 +1,10 @@
 """create_initial_tables
 
 Revision ID: 001_initial
-Revises: 
+Revises:
 Create Date: 2026-08-17
 """
+
 from alembic import op
 
 revision = "001_initial"

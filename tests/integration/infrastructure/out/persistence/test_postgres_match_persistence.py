@@ -85,7 +85,14 @@ def test_save(repository, seed_matches):
         id=MatchId("real-madrid-vs-barcelona-2026-08-25"),
         home_team_id=TEAM_ID_1,
         away_team_id=TEAM_ID_2,
-        start_time=datetime( 2026, 8, 25, 20, 30, tzinfo=UTC, ),
+        start_time=datetime(
+            2026,
+            8,
+            25,
+            20,
+            30,
+            tzinfo=UTC,
+        ),
         score=Score(home=85, away=80),
         league="ACB",
         channels=[Channel("ESPN"), Channel("La1")],
@@ -107,7 +114,14 @@ def test_save_updates_existing_match(repository, seed_matches):
         id=MatchId("barcelona-vs-saski-baskonia-2026-08-21"),
         home_team_id=TEAM_ID_2,
         away_team_id=TEAM_ID_3,
-        start_time=datetime( 2026, 8, 21, 20, 0, tzinfo=UTC, ),
+        start_time=datetime(
+            2026,
+            8,
+            21,
+            20,
+            0,
+            tzinfo=UTC,
+        ),
         score=Score(home=90, away=85),
         league="ACB",
         channels=[Channel("Movistar+")],
@@ -143,7 +157,12 @@ def test_find_by_id_not_found(repository, seed_matches):
     assert match is None
 
 
-def test_find_upcoming_by_user_returns_upcoming_matches( repository, seed_user_with_favorite_team, seed_matches, db_url, ):
+def test_find_upcoming_by_user_returns_upcoming_matches(
+    repository,
+    seed_user_with_favorite_team,
+    seed_matches,
+    db_url,
+):
     # Given
 
     # When
@@ -157,12 +176,23 @@ def test_find_upcoming_by_user_returns_upcoming_matches( repository, seed_user_w
     assert match.id == MatchId("real-madrid-vs-barcelona-2026-10-19")
     assert match.home_team_id == TEAM_ID_1
     assert match.away_team_id == TEAM_ID_2
-    assert match.start_time == datetime( 2026, 10, 19, 20, 0, tzinfo=UTC, )
+    assert match.start_time == datetime(
+        2026,
+        10,
+        19,
+        20,
+        0,
+        tzinfo=UTC,
+    )
     assert match.channels == [Channel("Movistar+")]
     assert match.league == "ACB"
     assert match.status == MatchStatus.SCHEDULED
 
-def test_find_upcoming_by_user_returns_empty_when_user_does_not_exist( repository, seed_matches, ):
+
+def test_find_upcoming_by_user_returns_empty_when_user_does_not_exist(
+    repository,
+    seed_matches,
+):
     # Given
     user_id = USER_ID_404
 

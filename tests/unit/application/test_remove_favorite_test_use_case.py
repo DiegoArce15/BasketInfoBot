@@ -20,14 +20,19 @@ def test_remove_favorite_team_success(
 ):
     # Given
     mock_user_repo.find_by_id.return_value = User(
-        id=USER_ID_1, 
-        telegram_id=TELEGRAM_ID_1, 
-        username="John Doe", 
+        id=USER_ID_1,
+        telegram_id=TELEGRAM_ID_1,
+        username="John Doe",
         favorite_teams=[
             User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
-        ]
+        ],
     )
-    mock_team_repo.find_by_id.return_value = Team(id=TEAM_ID_1, name="Real Madrid", country="Spain", logo_url="http:fake.s3/real-madrid.png")
+    mock_team_repo.find_by_id.return_value = Team(
+        id=TEAM_ID_1,
+        name="Real Madrid",
+        country="Spain",
+        logo_url="http:fake.s3/real-madrid.png",
+    )
 
     use_case = RemoveFavoriteTeamUseCase(
         mock_user_repo,
@@ -52,20 +57,26 @@ def test_remove_favorite_team_success(
         )
     )
 
+
 def test_remove_favorite_team_does_not_remove_anything_when_team_is_not_a_favorite_one(
     mock_user_repo: Mock,
     mock_team_repo: Mock,
 ):
     # Given
     mock_user_repo.find_by_id.return_value = User(
-        id=USER_ID_1, 
-        telegram_id=TELEGRAM_ID_1, 
-        username="John Doe", 
+        id=USER_ID_1,
+        telegram_id=TELEGRAM_ID_1,
+        username="John Doe",
         favorite_teams=[
             User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
-        ]
+        ],
     )
-    mock_team_repo.find_by_id.return_value = Team(id=TEAM_ID_2, name="UCAM Murcia", country="Spain", logo_url="http:fake.s3/ucam-murcia.png")
+    mock_team_repo.find_by_id.return_value = Team(
+        id=TEAM_ID_2,
+        name="UCAM Murcia",
+        country="Spain",
+        logo_url="http:fake.s3/ucam-murcia.png",
+    )
 
     use_case = RemoveFavoriteTeamUseCase(
         mock_user_repo,
@@ -82,6 +93,7 @@ def test_remove_favorite_team_does_not_remove_anything_when_team_is_not_a_favori
     mock_user_repo.find_by_id.assert_called_once_with(USER_ID_1)
     mock_team_repo.find_by_id.assert_called_once_with(TEAM_ID_2)
     mock_user_repo.save.assert_not_called()
+
 
 def test_remove_favorite_team_fails_when_user_does_not_exist(
     mock_user_repo: Mock,
@@ -109,18 +121,19 @@ def test_remove_favorite_team_fails_when_user_does_not_exist(
     mock_team_repo.find_by_id.assert_not_called()
     mock_user_repo.save.assert_not_called()
 
+
 def test_remove_favorite_team_fails_when_team_does_not_exist(
     mock_user_repo: Mock,
     mock_team_repo: Mock,
 ):
     # Given
     mock_user_repo.find_by_id.return_value = User(
-        id=USER_ID_1, 
-        telegram_id=TELEGRAM_ID_1, 
-        username="John Doe", 
+        id=USER_ID_1,
+        telegram_id=TELEGRAM_ID_1,
+        username="John Doe",
         favorite_teams=[
             User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
-        ]
+        ],
     )
     mock_team_repo.find_by_id.return_value = None
 

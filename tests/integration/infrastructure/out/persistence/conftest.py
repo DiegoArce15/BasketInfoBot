@@ -41,7 +41,7 @@ def seed_teams(db_url, run_migrations):
     """
     with psycopg2.connect(db_url) as conn, conn.cursor() as cursor:
         cursor.execute("TRUNCATE TABLE teams RESTART IDENTITY CASCADE;")
-        
+
         cursor.execute(
             """
             INSERT INTO teams (id, name)

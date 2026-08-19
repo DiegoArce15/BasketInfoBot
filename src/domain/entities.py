@@ -76,6 +76,7 @@ class MatchId:
     def __str__(self) -> str:
         return self.value
 
+
 @dataclass(frozen=True)
 class Channel:
     name: str
