@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from unittest.mock import MagicMock
 
-from src.application.sync_upcoming_matches import SyncUpcomingMatchesUseCase
+from src.application.sync_upcoming_matches_use_case import SyncUpcomingMatchesUseCase
 from src.domain.entities import Channel, Match, MatchStatus
 from tests.test_utils.constants import (
     TEAM_ID_1,

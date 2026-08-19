@@ -1,5 +1,5 @@
-from domain.match_fetcher import MatchFetcher
-from domain.match_repository import MatchRepository
+from src.domain.match_fetcher import MatchFetcher
+from src.domain.match_repository import MatchRepository
 
 
 class SyncUpcomingMatchesUseCase:

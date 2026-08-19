@@ -1,5 +1,3 @@
-# src/application/team_use_cases.py
-
 from src.domain.entities import Team
 from src.domain.team_repository import TeamRepository
 
