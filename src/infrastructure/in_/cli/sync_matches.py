@@ -25,6 +25,7 @@ def main() -> None:
 
     try:
         matches_count = use_case.execute()
+    # ruff: noqa: BLE001
     except Exception as exc:
         print(
             f"Error durante la sincronización: {exc}",
