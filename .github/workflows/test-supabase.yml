@@ -1,0 +1,40 @@
+name: Test Supabase Connection
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-connection:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --locked
+
+      - name: Test Supabase connection
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          uv run python - <<'PY'
+          import os
+          import psycopg2
+
+          database_url = os.environ["DATABASE_URL"]
+
+          with psycopg2.connect(database_url) as conn:
+              with conn.cursor() as cursor:
+                  cursor.execute("SELECT 1")
+                  result = cursor.fetchone()
+
+          assert result == (1,)
+          print("✅ Conexión a Supabase correcta")
+          PY
