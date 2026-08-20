@@ -26,11 +26,7 @@ def get_db_url() -> str:
 def run_migrations_offline() -> None:
     """Modo offline: Genera las sentencias SQL en consola sin conectarse a la BD."""
     url = get_db_url()
-    context.configure(
-        url=url,
-        literal_binds=True,
-        dialect_name="postgresql",
-    )
+    context.configure(url=url, literal_binds=True, dialect_name="postgresql")
 
     with context.begin_transaction():
         context.run_migrations()

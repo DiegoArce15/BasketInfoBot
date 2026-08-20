@@ -4,23 +4,21 @@ from datetime import UTC, datetime
 import httpx
 from bs4 import BeautifulSoup, Tag
 
-from src.domain.entities import Channel, Match, MatchId, MatchStatus, Score, TeamId
+from src.application.sync_upcoming_matches_command import SyncMatchCommand
+from src.domain.entities import Channel, MatchStatus, Score
 from src.domain.match_fetcher import MatchFetcher
 
 
 class AcbScraper(MatchFetcher):
-    def __init__(self, target_url: str, team_mapping: dict[str, TeamId]):
+    def __init__(self, target_url: str):
         self._target_url = target_url
-        self._team_mapping = team_mapping
 
-    def fetch_upcoming_matches(self) -> list[Match]:
+    def fetch_upcoming_matches(self) -> list[SyncMatchCommand]:
         response = httpx.get(
             self._target_url,
             headers={
                 "User-Agent": (
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 (KHTML, like Gecko) "
-                    "Chrome/120.0.0.0 Safari/537.36"
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
                 )
             },
             timeout=10.0,
@@ -29,14 +27,15 @@ class AcbScraper(MatchFetcher):
 
         return self.parse_html(response.text)
 
-    def parse_html(self, html_content: str) -> list[Match]:
+    def parse_html(self, html_content: str) -> list[SyncMatchCommand]:
         soup = BeautifulSoup(html_content, "html.parser")
-        matches: list[Match] = []
+        matches: list[SyncMatchCommand] = []
 
         day_blocks = soup.select("div[class*='Round-module'][class*='__days'] > div")
 
         for day_block in day_blocks:
             date_header = day_block.select_one("h3[class*='DayTitle-module']")
+
             if not date_header:
                 continue
 
@@ -48,6 +47,7 @@ class AcbScraper(MatchFetcher):
 
             for card in match_cards:
                 time_el = card.select_one("p[class*='__roundMatch__time'] span")
+
                 time_str = (
                     time_el.text.strip().replace(" h", "") if time_el else "00:00"
                 )
@@ -68,42 +68,39 @@ class AcbScraper(MatchFetcher):
                 if not home_el or not away_el:
                     continue
 
-                home_name = home_el.text.strip()
-                away_name = away_el.text.strip()
-
-                home_team_id = self._team_mapping.get(home_name)
-                away_team_id = self._team_mapping.get(away_name)
-
-                if not home_team_id or not away_team_id:
-                    continue
+                home_team_name = home_el.text.strip()
+                away_team_name = away_el.text.strip()
 
                 tv_imgs = card.select(
                     "div[class*='__roundMatch__tv'] img[class*='__tvLogo']"
                 )
-                channels = [
-                    Channel(name=img["alt"].strip())
-                    for img in tv_imgs
-                    if img.get("alt")
-                ]
+
+                channels = []
+
+                for img in tv_imgs:
+                    alt = img.get("alt")
+
+                    if not isinstance(alt, str):
+                        continue
+
+                    channels.append(Channel(name=alt.strip()))
 
                 match_datetime = self._parse_datetime(date_str, time_str)
-                match_id = MatchId.create(
-                    home_team=home_name,
-                    away_team=away_name,
-                    start_time=match_datetime,
-                )
 
                 score = self._extract_match_score(home_team_div, away_team_div)
 
+                status = (
+                    MatchStatus.FINISHED if score is not None else MatchStatus.SCHEDULED
+                )
+
                 matches.append(
-                    Match(
-                        id=match_id,
-                        home_team_id=home_team_id,
-                        away_team_id=away_team_id,
+                    SyncMatchCommand(
+                        home_team_name=home_team_name,
+                        away_team_name=away_team_name,
                         start_time=match_datetime,
-                        league="ACB",
-                        status=MatchStatus.SCHEDULED,
                         channels=channels,
+                        league="ACB",
+                        status=status,
                         score=score,
                     )
                 )
@@ -111,7 +108,8 @@ class AcbScraper(MatchFetcher):
         return matches
 
     def _extract_match_score(self, home_div: Tag, away_div: Tag) -> Score | None:
-        """Extrae las puntuaciones de ambos equipos y retorna la entidad Score si están disponibles."""
+        """Extrae las puntuaciones de ambos equipos."""
+
         home_score = self._extract_single_score(home_div)
         away_score = self._extract_single_score(away_div)
 
@@ -121,10 +119,13 @@ class AcbScraper(MatchFetcher):
         return None
 
     def _extract_single_score(self, team_div: Tag) -> int | None:
-        """Busca el valor numérico del marcador dentro de la tarjeta de un equipo."""
+        """Busca el marcador de un equipo."""
+
         score_el = team_div.select_one("p[class*='__teamScore']")
+
         if score_el and score_el.text.strip().isdigit():
             return int(score_el.text.strip())
+
         return None
 
     def _parse_datetime(self, date_str: str, time_str: str) -> datetime:
@@ -144,6 +145,7 @@ class AcbScraper(MatchFetcher):
         }
 
         match = re.search(r"(\d+)\s+de\s+([a-z]+)\s+de\s+(\d{4})", date_str.lower())
+
         if not match:
             return datetime.now(UTC)
 

@@ -13,5 +13,13 @@ class TeamRepository(ABC):
         """Busca un equipo por su TeamId."""
 
     @abstractmethod
+    def find_by_ids(self, team_ids: list[TeamId]) -> list[Team]:
+        """Busca varios equipos por sus TeamId."""
+
+    @abstractmethod
+    def find_by_name(self, name: str) -> Team | None:
+        """Busca un equipo por su nombre."""
+
+    @abstractmethod
     def find_all(self) -> list[Team]:
         """Retorna todos los equipos registrados."""

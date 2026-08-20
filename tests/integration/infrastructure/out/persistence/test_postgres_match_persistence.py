@@ -6,10 +6,10 @@ import pytest
 import src.infrastructure.out.persistence.postgres_match_persistence
 from src.domain.entities import Channel, Match, MatchId, MatchStatus, Score
 from tests.test_utils.constants import (
-    TEAM_ID_1,
     TEAM_ID_2,
     TEAM_ID_3,
-    TEAM_ID_5,
+    TEAM_ID_12,
+    TEAM_ID_16,
     USER_ID_11,
     USER_ID_404,
 )
@@ -31,15 +31,15 @@ def seed_matches(db_url):
             """
             INSERT INTO matches (id, home_team_id, away_team_id, start_time, home_score, away_score, league, status)
             VALUES 
-                ('real-madrid-vs-ucam-murcia-2026-08-20', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000005', '2026-08-20 18:00:00+00', 80, 75, 'ACB', 'FINISHED'),
-                ('barcelona-vs-saski-baskonia-2026-08-21', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', '2026-08-21 20:00:00+00', null, null, 'ACB', 'SCHEDULED'),
-                ('real-madrid-vs-barcelona-2026-10-19', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000002', '2026-10-19 20:00:00+00', null, null, 'ACB', 'SCHEDULED');
+                ('real-madrid-vs-ucam-murcia-2026-08-20', '00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000016', '2026-08-20 18:00:00+00', 80, 75, 'ACB', 'FINISHED'),
+                ('barca-vs-casademont-zaragoza-2026-08-21', '00000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-000000000003', '2026-08-21 20:00:00+00', null, null, 'ACB', 'SCHEDULED'),
+                ('real-madrid-vs-barca-2026-10-19', '00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000002', '2026-10-19 20:00:00+00', null, null, 'ACB', 'SCHEDULED');
             
             INSERT INTO match_channels (match_id, channel_name)
             VALUES 
                 ('real-madrid-vs-ucam-murcia-2026-08-20', 'ESPN' ),
-                ('barcelona-vs-saski-baskonia-2026-08-21', 'ESPN'),
-                ('real-madrid-vs-barcelona-2026-10-19', 'Movistar+');
+                ('barca-vs-casademont-zaragoza-2026-08-21', 'ESPN'),
+                ('real-madrid-vs-barca-2026-10-19', 'Movistar+');
             """
         )
 
@@ -64,7 +64,7 @@ def seed_user_with_favorite_team(db_url, seed_teams):
             VALUES ('00000000-0000-0000-0000-000000000011', 1, 'John-Doe');
 
             INSERT INTO user_favorite_teams (user_id, team_id)
-            VALUES ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001');
+            VALUES ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000012');
             """
         )
 
@@ -82,17 +82,10 @@ def seed_user_with_favorite_team(db_url, seed_teams):
 def test_save(repository, seed_matches):
     # Given
     match = Match(
-        id=MatchId("real-madrid-vs-barcelona-2026-08-25"),
-        home_team_id=TEAM_ID_1,
+        id=MatchId("real-madrid-vs-barca-2026-08-25"),
+        home_team_id=TEAM_ID_12,
         away_team_id=TEAM_ID_2,
-        start_time=datetime(
-            2026,
-            8,
-            25,
-            20,
-            30,
-            tzinfo=UTC,
-        ),
+        start_time=datetime(2026, 8, 25, 20, 30, tzinfo=UTC),
         score=Score(home=85, away=80),
         league="ACB",
         channels=[Channel("ESPN"), Channel("La1")],
@@ -111,17 +104,10 @@ def test_save(repository, seed_matches):
 def test_save_updates_existing_match(repository, seed_matches):
     # Given
     match = Match(
-        id=MatchId("barcelona-vs-saski-baskonia-2026-08-21"),
+        id=MatchId("barca-vs-casademont-zaragoza-2026-08-21"),
         home_team_id=TEAM_ID_2,
         away_team_id=TEAM_ID_3,
-        start_time=datetime(
-            2026,
-            8,
-            21,
-            20,
-            0,
-            tzinfo=UTC,
-        ),
+        start_time=datetime(2026, 8, 21, 20, 0, tzinfo=UTC),
         score=Score(home=90, away=85),
         league="ACB",
         channels=[Channel("Movistar+")],
@@ -138,60 +124,52 @@ def test_save_updates_existing_match(repository, seed_matches):
 
 
 def test_find_by_id(repository, seed_matches):
+    # When
     match = repository.find_by_id(MatchId("real-madrid-vs-ucam-murcia-2026-08-20"))
 
-    assert match is not None
-    assert match.id == MatchId("real-madrid-vs-ucam-murcia-2026-08-20")
-    assert match.home_team_id == TEAM_ID_1
-    assert match.away_team_id == TEAM_ID_5
-    assert match.start_time.isoformat() == "2026-08-20T18:00:00+00:00"
-    assert match.score == Score(home=80, away=75)
-    assert match.channels == [Channel("ESPN")]
-    assert match.league == "ACB"
-    assert match.status == "FINISHED"
+    # Then
+    assert match == Match(
+        id=MatchId("real-madrid-vs-ucam-murcia-2026-08-20"),
+        home_team_id=TEAM_ID_12,
+        away_team_id=TEAM_ID_16,
+        start_time=datetime(2026, 8, 20, 18, 0, tzinfo=UTC),
+        score=Score(home=80, away=75),
+        channels=[Channel("ESPN")],
+        league="ACB",
+        status="FINISHED",
+    )
 
 
 def test_find_by_id_not_found(repository, seed_matches):
+    # When
     match = repository.find_by_id(MatchId("404-non-found"))
 
+    # Then
     assert match is None
 
 
 def test_find_upcoming_by_user_returns_upcoming_matches(
-    repository,
-    seed_user_with_favorite_team,
-    seed_matches,
-    db_url,
+    repository, seed_user_with_favorite_team, seed_matches, db_url
 ):
-    # Given
-
     # When
     matches = repository.find_upcoming_by_user(USER_ID_11)
 
     # Then
-    assert len(matches) == 1
-
-    match = matches[0]
-
-    assert match.id == MatchId("real-madrid-vs-barcelona-2026-10-19")
-    assert match.home_team_id == TEAM_ID_1
-    assert match.away_team_id == TEAM_ID_2
-    assert match.start_time == datetime(
-        2026,
-        10,
-        19,
-        20,
-        0,
-        tzinfo=UTC,
-    )
-    assert match.channels == [Channel("Movistar+")]
-    assert match.league == "ACB"
-    assert match.status == MatchStatus.SCHEDULED
+    assert matches == [
+        Match(
+            id=MatchId("real-madrid-vs-barca-2026-10-19"),
+            home_team_id=TEAM_ID_12,
+            away_team_id=TEAM_ID_2,
+            start_time=datetime(2026, 10, 19, 20, 0, tzinfo=UTC),
+            channels=[Channel("Movistar+")],
+            league="ACB",
+            status=MatchStatus.SCHEDULED,
+        )
+    ]
 
 
 def test_find_upcoming_by_user_returns_empty_when_user_does_not_exist(
-    repository,
-    seed_matches,
+    repository, seed_matches
 ):
     # Given
     user_id = USER_ID_404

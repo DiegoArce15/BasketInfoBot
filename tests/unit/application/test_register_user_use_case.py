@@ -5,10 +5,7 @@ from src.domain.entities import User
 from tests.test_utils.constants import TELEGRAM_ID_1, USER_ID_1, UUID_1
 
 
-def test_register_new_user(
-    mock_user_repo: Mock,
-    mock_id_generator: Mock,
-):
+def test_register_new_user(mock_user_repo: Mock, mock_id_generator: Mock):
     # Given
     mock_user_repo.find_by_telegram_id.return_value = None
     mock_id_generator.generate.return_value = UUID_1
@@ -18,10 +15,7 @@ def test_register_new_user(
     )
 
     # When
-    result = use_case.execute(
-        telegram_id=TELEGRAM_ID_1,
-        username="John",
-    )
+    result = use_case.execute(telegram_id=TELEGRAM_ID_1, username="John")
 
     # Then
     assert result.id == USER_ID_1
@@ -30,37 +24,22 @@ def test_register_new_user(
 
     mock_user_repo.find_by_telegram_id.assert_called_once_with(TELEGRAM_ID_1)
     mock_user_repo.save.assert_called_once_with(
-        User(
-            id=USER_ID_1,
-            telegram_id=TELEGRAM_ID_1,
-            username="John",
-        )
+        User(id=USER_ID_1, telegram_id=TELEGRAM_ID_1, username="John")
     )
 
 
 def test_register_existing_user_returns_same_user(
-    mock_user_repo: Mock,
-    mock_id_generator: Mock,
+    mock_user_repo: Mock, mock_id_generator: Mock
 ):
     # Given
-    existing_user = User(
-        id=USER_ID_1,
-        telegram_id=TELEGRAM_ID_1,
-        username="John",
-    )
+    existing_user = User(id=USER_ID_1, telegram_id=TELEGRAM_ID_1, username="John")
 
     mock_user_repo.find_by_telegram_id.return_value = existing_user
 
-    use_case = RegisterUserUseCase(
-        mock_user_repo,
-        mock_id_generator,
-    )
+    use_case = RegisterUserUseCase(mock_user_repo, mock_id_generator)
 
     # When
-    result = use_case.execute(
-        telegram_id=TELEGRAM_ID_1,
-        username="John_doe",
-    )
+    result = use_case.execute(telegram_id=TELEGRAM_ID_1, username="John_doe")
 
     # Then
     assert result is existing_user

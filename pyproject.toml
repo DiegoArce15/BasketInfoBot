@@ -21,6 +21,7 @@ dev = [
     "pytest-mock>=3.15.1",
     "ruff>=0.16.3",
     "testcontainers[postgres]>=4.15.0",
+    "types-psycopg2>=2.9.21.20260724",
 ]
 
 [tool.pytest.ini_options]

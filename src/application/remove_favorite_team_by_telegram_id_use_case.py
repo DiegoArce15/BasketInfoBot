@@ -1,19 +1,21 @@
-from src.domain.entities import TeamId, UserId
+from src.domain.entities import TeamId, TelegramId
 from src.domain.team_repository import TeamRepository
 from src.domain.user_repository import UserRepository
 
 
-class RemoveFavoriteTeamUseCase:
+class RemoveFavoriteTeamByTelegramIdUseCase:
     """Elimina un equipo de los favoritos del usuario."""
 
     def __init__(self, user_repo: UserRepository, team_repo: TeamRepository):
         self.user_repo = user_repo
         self.team_repo = team_repo
 
-    def execute(self, user_id: UserId, team_id: TeamId) -> None:
-        user = self.user_repo.find_by_id(user_id)
+    def execute(self, telegram_id: TelegramId, team_id: TeamId) -> None:
+        user = self.user_repo.find_by_telegram_id(telegram_id)
         if not user:
-            raise ValueError(f"Usuario con id {user_id.value} no encontrado")
+            raise ValueError(
+                f"Usuario con telegram id {telegram_id.value} no encontrado"
+            )
 
         team = self.team_repo.find_by_id(team_id)
         if not team:

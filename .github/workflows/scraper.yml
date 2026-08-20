@@ -20,4 +20,5 @@ jobs:
       - name: Sync matches
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ACB_TARGET_URL: ${{ secrets.ACB_TARGET_URL }}
         run: uv run python -m src.infrastructure.in.cli.sync_matches

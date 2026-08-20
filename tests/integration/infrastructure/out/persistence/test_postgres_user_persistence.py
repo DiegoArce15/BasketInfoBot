@@ -71,7 +71,7 @@ def test_update_user_info(repository, seed_user_with_favorite_team):
         telegram_id=TELEGRAM_ID_1,
         username="John Updated",
         favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
+            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
         ],
     )
 
@@ -120,7 +120,7 @@ def test_find_by_id_should_return_user(repository, seed_user_with_favorite_team)
         telegram_id=TELEGRAM_ID_1,
         username="John Doe",
         favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
+            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
         ],
     )
 
@@ -147,7 +147,7 @@ def test_find_by_telegram_id_should_return_user(
         telegram_id=TELEGRAM_ID_1,
         username="John Doe",
         favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True),
+            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
         ],
     )
 

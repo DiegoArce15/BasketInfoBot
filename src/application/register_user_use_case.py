@@ -7,9 +7,7 @@ class RegisterUserUseCase:
     """Registra un nuevo usuario cuando inicia interacción con el bot."""
 
     def __init__(
-        self,
-        user_repository: UserRepository,
-        id_generator: IdGenerator,
+        self, user_repository: UserRepository, id_generator: IdGenerator
     ) -> None:
         self._user_repository = user_repository
         self._id_generator = id_generator

@@ -100,7 +100,6 @@ class Score:
 class MatchStatus(str, Enum):
     SCHEDULED = "SCHEDULED"
     FINISHED = "FINISHED"
-    CANCELLED = "CANCELLED"
 
 
 # ------------------------------------------------------------------
@@ -112,6 +111,7 @@ class MatchStatus(str, Enum):
 class Team:
     id: TeamId
     name: str
+    short_name: str
     country: str | None = None
     logo_url: str | None = None
 
@@ -122,16 +122,16 @@ class Match:
     home_team_id: TeamId
     away_team_id: TeamId
     start_time: datetime
-    score: Score | None = None
     channels: list[Channel] = field(default_factory=list)
     league: str | None = None
     status: MatchStatus = MatchStatus.SCHEDULED
+    score: Score | None = None
 
 
 @dataclass
 class User:
     id: UserId
-    telegram_id: TelegramId | None
+    telegram_id: TelegramId
     username: str | None = None
 
     @dataclass(frozen=True)

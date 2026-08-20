@@ -17,8 +17,9 @@ def upgrade() -> None:
     # Tabla de Equipos
     op.execute("""
         CREATE TABLE teams (
-            id UUID PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+            name VARCHAR(100) NOT NULL UNIQUE,
+            short_name CHAR(3) NOT NULL UNIQUE,
             country VARCHAR(50),
             logo_url TEXT,
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -29,7 +30,7 @@ def upgrade() -> None:
     # Tabla de Usuarios
     op.execute("""
         CREATE TABLE users (
-            id UUID PRIMARY KEY,
+            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
             telegram_id BIGINT UNIQUE,
             username VARCHAR(100),
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
