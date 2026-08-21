@@ -1,3 +1,7 @@
+import os
+
+import uvicorn
+
 from src.application.add_favorite_team_by_telegram_id_use_case import (
     AddFavoriteTeamByTelegramIdUseCase,
 )
@@ -13,6 +17,7 @@ from src.application.remove_favorite_team_by_telegram_id_use_case import (
     RemoveFavoriteTeamByTelegramIdUseCase,
 )
 from src.infrastructure.in_.telegram_bot.bot import create_telegram_app
+from src.infrastructure.in_.telegram_bot.webhook import create_webhook_app
 from src.infrastructure.out.persistence.postgres_match_persistence import (
     PostgresMatchPersistence,
 )
@@ -28,7 +33,7 @@ from src.shared.infrastructure.system_uuid_generator import (
 )
 
 
-def main() -> None:
+def create_app():
     settings = Settings()
 
     # Infrastructure
@@ -38,18 +43,22 @@ def main() -> None:
     id_generator = SystemUuidGenerator()
 
     # Application
-    add_favorite_team_by_telegram_id_use_case = AddFavoriteTeamByTelegramIdUseCase(
-        user_repo=user_repository,
-        team_repo=team_repository,
+    add_favorite_team_by_telegram_id_use_case = (
+        AddFavoriteTeamByTelegramIdUseCase(
+            user_repo=user_repository,
+            team_repo=team_repository,
+        )
     )
 
     get_available_teams_use_case = GetAvailableTeamsUseCase(
         team_repo=team_repository,
     )
 
-    get_favorite_teams_by_telegram_id_use_case = GetFavoriteTeamsByTelegramIdUseCase(
-        user_repository=user_repository,
-        team_repository=team_repository,
+    get_favorite_teams_by_telegram_id_use_case = (
+        GetFavoriteTeamsByTelegramIdUseCase(
+            user_repository=user_repository,
+            team_repository=team_repository,
+        )
     )
 
     get_upcoming_matches_by_telegram_id_use_case = (
@@ -73,19 +82,38 @@ def main() -> None:
     )
 
     # Telegram
-    app = create_telegram_app(
+    telegram_app = create_telegram_app(
         bot_token=settings.telegram_bot_token,
         register_user_use_case=register_user_use_case,
-        add_favorite_team_by_telegram_id_use_case=add_favorite_team_by_telegram_id_use_case,
-        remove_favorite_team_by_telegram_id_use_case=remove_favorite_team_by_telegram_id_use_case,
-        get_favorite_teams_by_telegram_id_use_case=get_favorite_teams_by_telegram_id_use_case,
+        add_favorite_team_by_telegram_id_use_case=(
+            add_favorite_team_by_telegram_id_use_case
+        ),
+        remove_favorite_team_by_telegram_id_use_case=(
+            remove_favorite_team_by_telegram_id_use_case
+        ),
+        get_favorite_teams_by_telegram_id_use_case=(
+            get_favorite_teams_by_telegram_id_use_case
+        ),
         get_available_teams_use_case=get_available_teams_use_case,
-        get_upcoming_matches_by_telegram_id_use_case=get_upcoming_matches_by_telegram_id_use_case,
+        get_upcoming_matches_by_telegram_id_use_case=(
+            get_upcoming_matches_by_telegram_id_use_case
+        ),
     )
 
-    print("Bot iniciado. Esperando mensajes de Telegram...")
-    app.run_polling()
+    # FastAPI + Telegram Webhook
+    return create_webhook_app(
+        telegram_app=telegram_app,
+        settings=settings,
+    )
+
+
+app = create_app()
 
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(
+        "src.main:app",
+        host="0.0.0.0",
+        port=int(os.getenv("PORT", "8000")),
+        reload=False,
+    )

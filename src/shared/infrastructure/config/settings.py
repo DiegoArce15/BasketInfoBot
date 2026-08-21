@@ -20,6 +20,10 @@ class Settings:
     def telegram_bot_token(self) -> str:
         return self._get_required("TELEGRAM_BOT_TOKEN")
 
+    @property
+    def webhook_url(self) -> str:
+        return self._get_required("WEBHOOK_URL")
+
     @staticmethod
     def _get_required(name: str) -> str:
         value = os.getenv(name)

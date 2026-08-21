@@ -1,6 +1,5 @@
 from telegram.ext import (
     Application,
-    ApplicationBuilder,
     CallbackQueryHandler,
     CommandHandler,
 )
@@ -50,7 +49,7 @@ def create_telegram_app(
         ),
     )
 
-    app = ApplicationBuilder().token(bot_token).build()
+    app = Application.builder().token(bot_token).updater(None).build()
 
     # Comandos
     app.add_handler(CommandHandler("start", handlers.start_handler))
