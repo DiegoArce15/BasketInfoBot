@@ -42,7 +42,7 @@ def upgrade() -> None:
     op.execute("""
         CREATE TABLE user_favorite_teams (
             user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-            team_id UUID NOT NULL,
+            team_id UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
             notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE,
             created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (user_id, team_id)
