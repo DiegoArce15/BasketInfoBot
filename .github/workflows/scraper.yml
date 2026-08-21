@@ -17,6 +17,9 @@ jobs:
 
       - run: uv sync --locked
 
+      - name: Install Playwright Chromium
+        run: uv run playwright install --with-deps chromium
+
       - name: Sync matches
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

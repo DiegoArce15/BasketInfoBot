@@ -8,8 +8,8 @@ from src.domain.entities import Channel, MatchStatus, Score
 class SyncMatchCommand:
     home_team_name: str
     away_team_name: str
-    start_time: datetime
     channels: list[Channel]
     league: str
     status: MatchStatus
+    start_time: datetime | None
     score: Score | None = None

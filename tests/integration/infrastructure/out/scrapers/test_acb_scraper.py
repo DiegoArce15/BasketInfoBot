@@ -1,4 +1,5 @@
-from datetime import UTC, datetime
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -15,7 +16,9 @@ def acb_html_fixture() -> str:
         <div class="RoundTitle-module-scss-module__-M5MOG__roundTitle">Jornada 1</div>
         <div class="Round-module-scss-module__oJf34a__round__days">
             <div>
-                <h3 class="heading heading--subhead DayTitle-module-scss-module__WF90Ba__dayTitle">26 de septiembre de 2026</h3>
+                <h3 class="heading heading--subhead DayTitle-module-scss-module__WF90Ba__dayTitle">
+                    26 de septiembre de 2026
+                </h3>
 
                 <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch">
                     <p class="text--body-1 RoundMatch-module-scss-module__q1UjKa__roundMatch__time">
@@ -26,7 +29,9 @@ def acb_html_fixture() -> str:
                         <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch__homeTeam">
                             <a class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamLink">
                                 <p class="heading RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName">
-                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">Surne Bilbao</span>
+                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">
+                                        Surne Bilbao
+                                    </span>
                                 </p>
                             </a>
                         </div>
@@ -36,7 +41,9 @@ def acb_html_fixture() -> str:
                         <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch__awayTeam">
                             <a class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamLink">
                                 <p class="heading RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName">
-                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">Kids&amp;Us Manresa</span>
+                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">
+                                        Kids&amp;Us Manresa
+                                    </span>
                                 </p>
                             </a>
                         </div>
@@ -55,7 +62,9 @@ def acb_html_fixture() -> str:
             </div>
 
             <div>
-                <h3 class="heading heading--subhead DayTitle-module-scss-module__WF90Ba__dayTitle">27 de septiembre de 2026</h3>
+                <h3 class="heading heading--subhead DayTitle-module-scss-module__WF90Ba__dayTitle">
+                    27 de septiembre de 2026
+                </h3>
 
                 <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch">
                     <p class="text--body-1 RoundMatch-module-scss-module__q1UjKa__roundMatch__time">
@@ -66,11 +75,15 @@ def acb_html_fixture() -> str:
                         <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch__homeTeam">
                             <a class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamLink">
                                 <p class="heading RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName">
-                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">Río Breogán</span>
+                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">
+                                        Río Breogán
+                                    </span>
                                 </p>
                             </a>
 
-                            <p class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore--winner">86</p>
+                            <p class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore--winner">
+                                86
+                            </p>
                         </div>
 
                         <p class="RoundMatch-module-scss-module__q1UjKa__roundMatch__separator">-</p>
@@ -78,11 +91,15 @@ def acb_html_fixture() -> str:
                         <div class="RoundMatch-module-scss-module__q1UjKa__roundMatch__awayTeam">
                             <a class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamLink">
                                 <p class="heading RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName">
-                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">Asisa Joventut</span>
+                                    <span class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamName--fullName">
+                                        Asisa Joventut
+                                    </span>
                                 </p>
                             </a>
 
-                            <p class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore">79</p>
+                            <p class="RoundMatch-module-scss-module__q1UjKa__roundMatch__teamScore">
+                                79
+                            </p>
                         </div>
                     </div>
 
@@ -102,11 +119,15 @@ def acb_html_fixture() -> str:
     """
 
 
-def test_parse_html_extracts_matches_correctly(acb_html_fixture: str) -> None:
+def test_parse_html_extracts_matches_correctly(
+    acb_html_fixture: str,
+) -> None:
     # Given
     scraper = AcbScraper(
         target_url="https://www.acb.com/resultados-clasificacion/index"
     )
+
+    madrid_tz = ZoneInfo("Europe/Madrid")
 
     # When
     matches = scraper.parse_html(acb_html_fixture)
@@ -116,7 +137,7 @@ def test_parse_html_extracts_matches_correctly(acb_html_fixture: str) -> None:
         SyncMatchCommand(
             home_team_name="Surne Bilbao",
             away_team_name="Kids&Us Manresa",
-            start_time=datetime(2026, 9, 26, 18, 0, tzinfo=UTC),
+            start_time=datetime(2026, 9, 26, 18, 0, tzinfo=madrid_tz),
             league="ACB",
             status=MatchStatus.SCHEDULED,
             channels=[Channel(name="DAZN"), Channel(name="Movistar Plus +")],
@@ -125,7 +146,7 @@ def test_parse_html_extracts_matches_correctly(acb_html_fixture: str) -> None:
         SyncMatchCommand(
             home_team_name="Río Breogán",
             away_team_name="Asisa Joventut",
-            start_time=datetime(2026, 9, 27, 12, 0, tzinfo=UTC),
+            start_time=datetime(2026, 9, 27, 12, 0, tzinfo=madrid_tz),
             league="ACB",
             status=MatchStatus.FINISHED,
             channels=[Channel(name="DAZN"), Channel(name="TV3/3Cat")],

@@ -23,6 +23,10 @@ class SyncUpcomingMatchesUseCase:
         synchronized_matches = 0
 
         for command in commands:
+            # Si no hay hora no continuamos
+            if command.start_time is None:
+                continue
+
             home_team = self._team_repository.find_by_name(command.home_team_name)
             if home_team is None:
                 raise ValueError(
