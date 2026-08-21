@@ -12,7 +12,7 @@ BasketInfoBot permite a los usuarios:
 
 La aplicación sincroniza automáticamente los partidos de la ACB desde la web oficial de la ACB y los persiste en PostgreSQL.
 
-🇪🇸 **Español** | 🇬🇧 [English](README.en.md)
+🇪🇸 **Español** | 🇬🇧 [English](README.md)
 
 ## 🏗️ Arquitectura
 
