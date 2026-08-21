@@ -43,22 +43,18 @@ def create_app():
     id_generator = SystemUuidGenerator()
 
     # Application
-    add_favorite_team_by_telegram_id_use_case = (
-        AddFavoriteTeamByTelegramIdUseCase(
-            user_repo=user_repository,
-            team_repo=team_repository,
-        )
+    add_favorite_team_by_telegram_id_use_case = AddFavoriteTeamByTelegramIdUseCase(
+        user_repo=user_repository,
+        team_repo=team_repository,
     )
 
     get_available_teams_use_case = GetAvailableTeamsUseCase(
         team_repo=team_repository,
     )
 
-    get_favorite_teams_by_telegram_id_use_case = (
-        GetFavoriteTeamsByTelegramIdUseCase(
-            user_repository=user_repository,
-            team_repository=team_repository,
-        )
+    get_favorite_teams_by_telegram_id_use_case = GetFavoriteTeamsByTelegramIdUseCase(
+        user_repository=user_repository,
+        team_repository=team_repository,
     )
 
     get_upcoming_matches_by_telegram_id_use_case = (
