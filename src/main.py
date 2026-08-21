@@ -83,6 +83,7 @@ def main() -> None:
         get_upcoming_matches_by_telegram_id_use_case=get_upcoming_matches_by_telegram_id_use_case,
     )
 
+    print("Bot iniciado. Esperando mensajes de Telegram...")
     app.run_polling()
 
 

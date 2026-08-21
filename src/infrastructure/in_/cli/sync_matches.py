@@ -27,7 +27,9 @@ def main() -> None:
     )
 
     try:
+        print("Ejecutando sincronización...")
         matches_count = use_case.execute()
+        print("Use case terminado.")
     # ruff: noqa: BLE001
     except Exception as exc:
         print(f"Error durante la sincronización: {exc}", file=sys.stderr)

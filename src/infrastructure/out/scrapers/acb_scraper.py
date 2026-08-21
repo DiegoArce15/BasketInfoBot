@@ -27,20 +27,23 @@ class AcbScraper(MatchFetcher):
             )
 
             try:
+                print("Abriendo ACB...")
+
                 page.goto(
                     self._target_url,
                     wait_until="domcontentloaded",
                     timeout=30_000,
                 )
 
-                # Esperamos a que existan los partidos renderizados
+                print("Página cargada. Esperando partidos...")
+
                 page.wait_for_selector(
                     "div[class$='__roundMatch']",
                     timeout=30_000,
                 )
 
-                # La página inicialmente puede mostrar XX:XX.
-                # Esperamos a que JavaScript haya cargado los horarios.
+                print("Partidos encontrados. Esperando horarios...")
+
                 page.wait_for_function(
                     """
                     () => Array.from(
@@ -56,12 +59,19 @@ class AcbScraper(MatchFetcher):
                     timeout=30_000,
                 )
 
+                print("Horarios cargados.")
+
+                print("HTML obtenido. Comenzando parseo...")
                 html = page.content()
 
             finally:
                 browser.close()
 
-        return self.parse_html(html)
+        matches = self.parse_html(html)
+
+        print(f"Parseo terminado: {len(matches)} partidos.")
+
+        return matches
 
     def parse_html(self, html_content: str) -> list[SyncMatchCommand]:
         soup = BeautifulSoup(html_content, "html.parser")

@@ -123,6 +123,70 @@ def test_save_updates_existing_match(repository, seed_matches):
     assert updated_match == match
 
 
+def test_save_all(repository, seed_matches):
+    # Given
+    matches = [
+        Match(
+            id=MatchId("real-madrid-vs-barca-2026-08-25"),
+            home_team_id=TEAM_ID_12,
+            away_team_id=TEAM_ID_2,
+            start_time=datetime(2026, 8, 25, 20, 30, tzinfo=UTC),
+            score=Score(home=85, away=80),
+            league="ACB",
+            channels=[Channel("ESPN"), Channel("La1")],
+            status=MatchStatus.FINISHED,
+        ),
+        Match(
+            id=MatchId("barca-vs-real-madrid-2026-08-26"),
+            home_team_id=TEAM_ID_2,
+            away_team_id=TEAM_ID_12,
+            start_time=datetime(2026, 8, 26, 21, 0, tzinfo=UTC),
+            channels=[Channel("Movistar+")],
+            league="ACB",
+            status=MatchStatus.SCHEDULED,
+        ),
+    ]
+
+    # When
+    repository.save_all(matches)
+
+    # Then
+    assert repository.find_by_id(matches[0].id) == matches[0]
+    assert repository.find_by_id(matches[1].id) == matches[1]
+
+
+def test_save_all_updates_existing_matches(repository, seed_matches):
+    # Given
+    matches = [
+        Match(
+            id=MatchId("barca-vs-casademont-zaragoza-2026-08-21"),
+            home_team_id=TEAM_ID_2,
+            away_team_id=TEAM_ID_3,
+            start_time=datetime(2026, 8, 21, 20, 0, tzinfo=UTC),
+            score=Score(home=90, away=85),
+            league="ACB",
+            channels=[Channel("Movistar+")],
+            status=MatchStatus.FINISHED,
+        ),
+        Match(
+            id=MatchId("real-madrid-vs-barca-2026-08-27"),
+            home_team_id=TEAM_ID_12,
+            away_team_id=TEAM_ID_2,
+            start_time=datetime(2026, 8, 27, 20, 30, tzinfo=UTC),
+            channels=[Channel("ESPN"), Channel("La1")],
+            league="ACB",
+            status=MatchStatus.SCHEDULED,
+        ),
+    ]
+
+    # When
+    repository.save_all(matches)
+
+    # Then
+    assert repository.find_by_id(matches[0].id) == matches[0]
+    assert repository.find_by_id(matches[1].id) == matches[1]
+
+
 def test_find_by_id(repository, seed_matches):
     # When
     match = repository.find_by_id(MatchId("real-madrid-vs-ucam-murcia-2026-08-20"))

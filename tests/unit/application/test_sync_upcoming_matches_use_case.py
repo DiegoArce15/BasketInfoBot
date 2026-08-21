@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -46,7 +46,7 @@ def test_sync_upcoming_matches_fetches_and_saves_matches():
 
     mock_fetcher.fetch_upcoming_matches.return_value = commands
 
-    mock_team_repository.find_by_name.side_effect = [
+    mock_team_repository.find_all.return_value = [
         real_madrid,
         barcelona,
         unicaja,
@@ -64,36 +64,36 @@ def test_sync_upcoming_matches_fetches_and_saves_matches():
 
     # Then
     mock_fetcher.fetch_upcoming_matches.assert_called_once()
+    mock_team_repository.find_all.assert_called_once()
 
     assert synced_count == 2
-    mock_match_repository.save.assert_has_calls(
+
+    mock_match_repository.save_all.assert_called_once_with(
         [
-            call(
-                Match(
-                    id=MatchId("real-madrid-vs-barca-2026-10-19"),
-                    home_team_id=TEAM_ID_1,
-                    away_team_id=TEAM_ID_2,
-                    start_time=start_time_1,
-                    channels=[Channel(name="Movistar+"), Channel(name="DAZN")],
-                    league="ACB",
-                    status=MatchStatus.SCHEDULED,
-                    score=None,
-                )
+            Match(
+                id=MatchId("real-madrid-vs-barca-2026-10-19"),
+                home_team_id=TEAM_ID_1,
+                away_team_id=TEAM_ID_2,
+                start_time=start_time_1,
+                channels=[Channel(name="Movistar+"), Channel(name="DAZN")],
+                league="ACB",
+                status=MatchStatus.SCHEDULED,
+                score=None,
             ),
-            call(
-                Match(
-                    id=MatchId("unicaja-vs-ucam-murcia-2026-10-29"),
-                    home_team_id=TEAM_ID_3,
-                    away_team_id=TEAM_ID_4,
-                    start_time=start_time_2,
-                    channels=[Channel(name="La1")],
-                    league="ACB",
-                    status=MatchStatus.FINISHED,
-                    score=Score(home=89, away=90),
-                )
+            Match(
+                id=MatchId("unicaja-vs-ucam-murcia-2026-10-29"),
+                home_team_id=TEAM_ID_3,
+                away_team_id=TEAM_ID_4,
+                start_time=start_time_2,
+                channels=[Channel(name="La1")],
+                league="ACB",
+                status=MatchStatus.FINISHED,
+                score=Score(home=89, away=90),
             ),
         ]
     )
+
+    mock_match_repository.save.assert_not_called()
 
 
 def test_sync_upcoming_matches_handles_empty_results():
@@ -103,6 +103,7 @@ def test_sync_upcoming_matches_handles_empty_results():
     mock_team_repository = MagicMock()
 
     mock_fetcher.fetch_upcoming_matches.return_value = []
+    mock_team_repository.find_all.return_value = []
 
     use_case = SyncUpcomingMatchesUseCase(
         match_fetcher=mock_fetcher,
@@ -115,11 +116,11 @@ def test_sync_upcoming_matches_handles_empty_results():
 
     # Then
     mock_fetcher.fetch_upcoming_matches.assert_called_once()
+    mock_team_repository.find_all.assert_called_once()
 
     assert synced_count == 0
 
-    mock_team_repository.find_by_name.assert_not_called()
-    mock_match_repository.save.assert_not_called()
+    mock_match_repository.save_all.assert_not_called()
 
 
 def test_sync_upcoming_matches_fails_when_home_team_does_not_exist():
@@ -138,8 +139,10 @@ def test_sync_upcoming_matches_fails_when_home_team_does_not_exist():
         score=None,
     )
 
+    real_madrid = Team(id=TEAM_ID_1, name="Real Madrid", short_name="RMB")
+
     mock_fetcher.fetch_upcoming_matches.return_value = [command]
-    mock_team_repository.find_by_name.return_value = None
+    mock_team_repository.find_all.return_value = [real_madrid]
 
     use_case = SyncUpcomingMatchesUseCase(
         match_fetcher=mock_fetcher,
@@ -149,11 +152,14 @@ def test_sync_upcoming_matches_fails_when_home_team_does_not_exist():
 
     # When / Then
     with pytest.raises(
-        ValueError, match="Equipo local no encontrado: Equipo inexistente"
+        ValueError,
+        match="Equipo local no encontrado: Equipo inexistente",
     ):
         use_case.execute()
 
-    mock_team_repository.find_by_name.assert_called_once_with("Equipo inexistente")
+    mock_team_repository.find_all.assert_called_once()
+
+    mock_match_repository.save_all.assert_not_called()
     mock_match_repository.save.assert_not_called()
 
 
@@ -176,8 +182,7 @@ def test_sync_upcoming_matches_fails_when_away_team_does_not_exist():
     )
 
     mock_fetcher.fetch_upcoming_matches.return_value = [command]
-
-    mock_team_repository.find_by_name.side_effect = [real_madrid, None]
+    mock_team_repository.find_all.return_value = [real_madrid]
 
     use_case = SyncUpcomingMatchesUseCase(
         match_fetcher=mock_fetcher,
@@ -187,10 +192,12 @@ def test_sync_upcoming_matches_fails_when_away_team_does_not_exist():
 
     # When / Then
     with pytest.raises(
-        ValueError, match="Equipo visitante no encontrado: Equipo inexistente"
+        ValueError,
+        match="Equipo visitante no encontrado: Equipo inexistente",
     ):
         use_case.execute()
 
-    mock_team_repository.find_by_name.assert_any_call("Real Madrid")
-    mock_team_repository.find_by_name.assert_any_call("Equipo inexistente")
+    mock_team_repository.find_all.assert_called_once()
+
+    mock_match_repository.save_all.assert_not_called()
     mock_match_repository.save.assert_not_called()

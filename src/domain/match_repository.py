@@ -9,6 +9,10 @@ class MatchRepository(ABC):
         """Guarda o actualiza un partido."""
 
     @abstractmethod
+    def save_all(self, matches: list[Match]) -> None:
+        """Guarda o actualiza varios partidos."""
+
+    @abstractmethod
     def find_by_id(self, match_id: MatchId) -> Match | None:
         """Busca un partido por su MatchId."""
 

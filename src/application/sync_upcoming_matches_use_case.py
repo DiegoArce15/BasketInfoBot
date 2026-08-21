@@ -1,3 +1,5 @@
+import time
+
 from src.domain.entities import Match, MatchId
 from src.domain.match_fetcher import MatchFetcher
 from src.domain.match_repository import MatchRepository
@@ -20,20 +22,30 @@ class SyncUpcomingMatchesUseCase:
     def execute(self) -> int:
         commands = self._match_fetcher.fetch_upcoming_matches()
 
-        synchronized_matches = 0
+        print(f"Partidos recibidos: {len(commands)}")
+
+        print("Cargando equipos...")
+        teams = self._team_repository.find_all()
+
+        teams_by_name = {team.name: team for team in teams}
+
+        print(f"Equipos cargados: {len(teams_by_name)}")
+
+        matches: list[Match] = []
 
         for command in commands:
-            # Si no hay hora no continuamos
             if command.start_time is None:
                 continue
 
-            home_team = self._team_repository.find_by_name(command.home_team_name)
+            home_team = teams_by_name.get(command.home_team_name)
+
             if home_team is None:
                 raise ValueError(
                     f"Equipo local no encontrado: {command.home_team_name}"
                 )
 
-            away_team = self._team_repository.find_by_name(command.away_team_name)
+            away_team = teams_by_name.get(command.away_team_name)
+
             if away_team is None:
                 raise ValueError(
                     f"Equipo visitante no encontrado: {command.away_team_name}"
@@ -54,7 +66,18 @@ class SyncUpcomingMatchesUseCase:
                 score=command.score,
             )
 
-            self._match_repository.save(match)
-            synchronized_matches += 1
+            matches.append(match)
 
-        return synchronized_matches
+        print(f"Partidos preparados para guardar: {len(matches)}")
+        print("Guardando partidos en Supabase...")
+        start = time.perf_counter()
+
+        if matches:
+            self._match_repository.save_all(matches)
+
+        elapsed = time.perf_counter() - start
+
+        print(f"Partidos guardados correctamente en {elapsed:.2f}s")
+        print(f"Partidos sincronizados: {len(matches)}")
+
+        return len(matches)
