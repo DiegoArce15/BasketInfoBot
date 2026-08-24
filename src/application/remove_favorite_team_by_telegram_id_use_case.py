@@ -1,30 +1,53 @@
-from src.domain.entities import TeamId, TelegramId
+import logging
+
+from src.domain.entities import TeamId, TelegramId, User
 from src.domain.team_repository import TeamRepository
 from src.domain.user_repository import UserRepository
 
+logger = logging.getLogger(__name__)
+
 
 class RemoveFavoriteTeamByTelegramIdUseCase:
-    """Elimina un equipo de los favoritos del usuario."""
+    def __init__(
+        self,
+        user_repo: UserRepository,
+        team_repo: TeamRepository,
+    ) -> None:
+        self._user_repo = user_repo
+        self._team_repo = team_repo
 
-    def __init__(self, user_repo: UserRepository, team_repo: TeamRepository):
-        self.user_repo = user_repo
-        self.team_repo = team_repo
+    def execute(
+        self,
+        telegram_id: TelegramId,
+        team_id: TeamId,
+    ) -> None:
+        logger.info(
+            "Remove favorite team %s for user with telegram_id=%s",
+            team_id.value,
+            telegram_id.value,
+        )
+        user = self._get_user_or_throw(telegram_id)
+        self._check_team_exists(team_id)
 
-    def execute(self, telegram_id: TelegramId, team_id: TeamId) -> None:
-        user = self.user_repo.find_by_telegram_id(telegram_id)
-        if not user:
-            raise ValueError(
-                f"Usuario con telegram id {telegram_id.value} no encontrado"
-            )
+        if not user.remove_favorite_team(team_id):
+            return
 
-        team = self.team_repo.find_by_id(team_id)
-        if not team:
-            raise ValueError(f"Equipo con id {team_id.value} no encontrado")
+        self._user_repo.save(user)
 
-        team_to_remove = next(
-            (fav for fav in user.favorite_teams if fav.team_id == team_id), None
+        logger.info(
+            "Favorite team removed, telegram_id=%s, team_id=%s",
+            telegram_id.value,
+            team_id.value,
         )
 
-        if team_to_remove:
-            user.favorite_teams.remove(team_to_remove)
-            self.user_repo.save(user)
+    def _get_user_or_throw(self, telegram_id: TelegramId) -> User:
+        user = self._user_repo.find_by_telegram_id(telegram_id)
+
+        if user is None:
+            raise ValueError(f"User with telegram id {telegram_id.value} not found")
+
+        return user
+
+    def _check_team_exists(self, team_id: TeamId) -> None:
+        if self._team_repo.find_by_id(team_id) is None:
+            raise ValueError(f"Team {team_id.value} not found")

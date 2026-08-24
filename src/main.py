@@ -27,6 +27,7 @@ from src.infrastructure.out.persistence.postgres_team_persistence import (
 from src.infrastructure.out.persistence.postgres_user_persistence import (
     PostgresUserPersistence,
 )
+from src.shared.infrastructure.config.logging_config import configure_logging
 from src.shared.infrastructure.config.settings import Settings
 from src.shared.infrastructure.system_uuid_generator import (
     SystemUuidGenerator,
@@ -34,6 +35,8 @@ from src.shared.infrastructure.system_uuid_generator import (
 
 
 def create_app():
+    configure_logging()
+
     settings = Settings()
 
     # Infrastructure

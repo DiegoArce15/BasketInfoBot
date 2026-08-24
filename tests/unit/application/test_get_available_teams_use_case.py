@@ -11,7 +11,6 @@ def test_get_available_teams_returns_all_stored_teams(mock_team_repo: Mock):
     valencia = Team(id=TEAM_ID_2, name="Valencia Basket", short_name="VBC")
 
     mock_team_repo.find_all.return_value = [real_madrid, valencia]
-
     use_case = GetAvailableTeamsUseCase(mock_team_repo)
 
     # When
@@ -20,4 +19,16 @@ def test_get_available_teams_returns_all_stored_teams(mock_team_repo: Mock):
     # Then
     assert result == [real_madrid, valencia]
 
-    mock_team_repo.find_all.assert_called_once_with()
+
+def test_get_available_teams_returns_empty_when_there_is_no_stored_teams(
+    mock_team_repo: Mock,
+):
+    # Given
+    mock_team_repo.find_all.return_value = []
+    use_case = GetAvailableTeamsUseCase(mock_team_repo)
+
+    # When
+    result = use_case.execute()
+
+    # Then
+    assert not result

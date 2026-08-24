@@ -1,14 +1,16 @@
+import logging
 import time
 
-from src.domain.entities import Match, MatchId
+from src.application.sync_upcoming_matches_command import SyncMatchCommand
+from src.domain.entities import Match, MatchId, Team
 from src.domain.match_fetcher import MatchFetcher
 from src.domain.match_repository import MatchRepository
 from src.domain.team_repository import TeamRepository
 
+logger = logging.getLogger(__name__)
+
 
 class SyncUpcomingMatchesUseCase:
-    """Sincroniza los próximos partidos obtenidos de una fuente externa."""
-
     def __init__(
         self,
         match_fetcher: MatchFetcher,
@@ -20,64 +22,86 @@ class SyncUpcomingMatchesUseCase:
         self._team_repository = team_repository
 
     def execute(self) -> int:
+        logger.info(logger.info("Starting upcoming matches synchronization"))
+
         commands = self._match_fetcher.fetch_upcoming_matches()
 
-        print(f"Partidos recibidos: {len(commands)}")
+        logger.info("Fetched %d upcoming matches", len(commands))
 
-        print("Cargando equipos...")
+        teams_by_name = self._load_teams_by_name()
+        matches = self._build_matches(commands, teams_by_name)
+
+        logger.info("Prepared %d matches to save", len(matches))
+
+        self._save_matches(matches)
+
+        logger.info(
+            "Upcoming matches synchronization completed: %d matches synchronized",
+            len(matches),
+        )
+
+        return len(matches)
+
+    def _load_teams_by_name(self):
         teams = self._team_repository.find_all()
 
-        teams_by_name = {team.name: team for team in teams}
+        logger.info("Loaded %d teams", len(teams))
 
-        print(f"Equipos cargados: {len(teams_by_name)}")
+        return {team.name: team for team in teams}
 
+    def _build_matches(
+        self,
+        commands: list[SyncMatchCommand],
+        teams_by_name: dict[str, Team],
+    ) -> list[Match]:
         matches: list[Match] = []
 
         for command in commands:
             if command.start_time is None:
                 continue
 
-            home_team = teams_by_name.get(command.home_team_name)
+            home_team = self._get_team_or_throw(teams_by_name, command.home_team_name)
+            away_team = self._get_team_or_throw(teams_by_name, command.away_team_name)
 
-            if home_team is None:
-                raise ValueError(
-                    f"Equipo local no encontrado: {command.home_team_name}"
-                )
-
-            away_team = teams_by_name.get(command.away_team_name)
-
-            if away_team is None:
-                raise ValueError(
-                    f"Equipo visitante no encontrado: {command.away_team_name}"
-                )
-
-            match = Match(
-                id=MatchId.create(
-                    home_team=command.home_team_name,
-                    away_team=command.away_team_name,
+            matches.append(
+                Match(
+                    id=MatchId.create(
+                        home_team=command.home_team_name,
+                        away_team=command.away_team_name,
+                        start_time=command.start_time,
+                    ),
+                    home_team_id=home_team.id,
+                    away_team_id=away_team.id,
                     start_time=command.start_time,
-                ),
-                home_team_id=home_team.id,
-                away_team_id=away_team.id,
-                start_time=command.start_time,
-                channels=command.channels,
-                league=command.league,
-                status=command.status,
-                score=command.score,
+                    channels=command.channels,
+                    league=command.league,
+                    status=command.status,
+                    score=command.score,
+                )
             )
 
-            matches.append(match)
+        return matches
 
-        print(f"Partidos preparados para guardar: {len(matches)}")
-        print("Guardando partidos en Supabase...")
+    def _get_team_or_throw(
+        self,
+        teams_by_name: dict[str, Team],
+        team_name: str,
+    ) -> Team:
+        team = teams_by_name.get(team_name)
+
+        if team is None:
+            raise ValueError(f"Team not found: {team_name}")
+
+        return team
+
+    def _save_matches(self, matches: list[Match]) -> None:
+        if not matches:
+            return
+
         start = time.perf_counter()
 
-        if matches:
-            self._match_repository.save_all(matches)
+        self._match_repository.save_all(matches)
 
         elapsed = time.perf_counter() - start
 
-        print(f"Partidos guardados correctamente en {elapsed:.2f}s")
-        print(f"Partidos sincronizados: {len(matches)}")
-
-        return len(matches)
+        logger.info("Saved %d matches in %.2fs", len(matches), elapsed)
