@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 import src.infrastructure.out.persistence.postgres_team_persistence
-from src.domain.entities import Team, TeamId
+from src.domain.team import Team, TeamId
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,

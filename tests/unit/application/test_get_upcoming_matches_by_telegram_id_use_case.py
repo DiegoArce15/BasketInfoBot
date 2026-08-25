@@ -5,15 +5,9 @@ from src.application.get_upcoming_matches_by_telegram_id_use_case import (
     GetUpcomingMatchesByTelegramIdUseCase,
     MatchResponseDTO,
 )
-from src.domain.entities import (
-    Channel,
-    Match,
-    MatchId,
-    MatchStatus,
-    Score,
-    Team,
-    User,
-)
+from src.domain.match import Channel, Match, MatchId, MatchStatus, Score
+from src.domain.team import Team
+from src.domain.user import User
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,

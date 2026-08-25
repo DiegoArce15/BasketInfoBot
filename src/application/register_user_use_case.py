@@ -1,7 +1,7 @@
 import logging
 
-from src.domain.entities import TelegramId, User, UserId
 from src.domain.id_generator import IdGenerator
+from src.domain.user import TelegramId, User, UserId
 from src.domain.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)

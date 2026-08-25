@@ -2,14 +2,14 @@ import random
 import uuid
 from datetime import UTC, datetime, timedelta
 
-from src.domain.entities import (
+from src.domain.match import (
     Channel,
     Match,
     MatchId,
     MatchStatus,
     Score,
-    TeamId,
 )
+from src.domain.team import TeamId
 
 
 def a_match(

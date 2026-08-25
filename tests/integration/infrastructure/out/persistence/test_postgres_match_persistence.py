@@ -4,7 +4,7 @@ import psycopg2
 import pytest
 
 import src.infrastructure.out.persistence.postgres_match_persistence
-from src.domain.entities import Channel, Match, MatchId, MatchStatus, Score
+from src.domain.match import Channel, Match, MatchId, MatchStatus, Score
 from tests.test_utils.constants import (
     TEAM_ID_2,
     TEAM_ID_3,

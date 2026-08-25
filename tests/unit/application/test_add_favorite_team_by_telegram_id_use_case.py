@@ -5,7 +5,8 @@ import pytest
 from src.application.add_favorite_team_by_telegram_id_use_case import (
     AddFavoriteTeamByTelegramIdUseCase,
 )
-from src.domain.entities import Team, User
+from src.domain.team import Team
+from src.domain.user import User
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_404,

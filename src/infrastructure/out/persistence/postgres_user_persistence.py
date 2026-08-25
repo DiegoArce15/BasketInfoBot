@@ -3,7 +3,8 @@ from uuid import UUID
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from src.domain.entities import TeamId, TelegramId, User, UserId
+from src.domain.team import TeamId
+from src.domain.user import TelegramId, User, UserId
 from src.domain.user_repository import UserRepository
 
 

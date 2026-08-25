@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.domain.entities import Channel, MatchStatus, Score
+from src.domain.match import Channel, MatchStatus, Score
 
 
 @dataclass(frozen=True)

@@ -2,7 +2,7 @@ import psycopg2
 import pytest
 
 import src.infrastructure.out.persistence.postgres_user_persistence
-from src.domain.entities import User
+from src.domain.user import User
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,

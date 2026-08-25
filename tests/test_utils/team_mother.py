@@ -1,6 +1,6 @@
 import uuid
 
-from src.domain.entities import Team, TeamId
+from src.domain.team import Team, TeamId
 
 
 def a_team(

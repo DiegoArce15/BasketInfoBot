@@ -3,7 +3,7 @@ from uuid import UUID
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from src.domain.entities import Team, TeamId
+from src.domain.team import Team, TeamId
 from src.domain.team_repository import TeamRepository
 
 

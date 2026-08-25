@@ -4,7 +4,7 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from src.application.sync_upcoming_matches_command import SyncMatchCommand
-from src.domain.entities import Channel, MatchStatus, Score
+from src.domain.match import Channel, MatchStatus, Score
 from src.infrastructure.out.scrapers.acb_scraper import AcbScraper
 
 

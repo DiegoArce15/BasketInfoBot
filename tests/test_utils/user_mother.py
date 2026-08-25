@@ -1,7 +1,8 @@
 import random
 import uuid
 
-from src.domain.entities import TeamId, TelegramId, User, UserId
+from src.domain.team import TeamId
+from src.domain.user import TelegramId, User, UserId
 
 
 def an_user(
