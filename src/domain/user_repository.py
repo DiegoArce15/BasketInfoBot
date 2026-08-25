@@ -6,12 +6,10 @@ from src.domain.entities import TelegramId, User, UserId
 class UserRepository(ABC):
     @abstractmethod
     def save(self, user: User) -> None:
-        """Guarda o actualiza un usuario en la persistencia."""
+        """Save or update an User"""
 
     @abstractmethod
-    def find_by_id(self, user_id: UserId) -> User | None:
-        """Busca un usuario por su UserId."""
+    def find_by_id(self, user_id: UserId) -> User | None: ...
 
     @abstractmethod
-    def find_by_telegram_id(self, telegram_id: TelegramId) -> User | None:
-        """Busca un usuario por su TelegramId."""
+    def find_by_telegram_id(self, telegram_id: TelegramId) -> User | None: ...

@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from src.application.sync_upcoming_matches_use_case import SyncUpcomingMatchesUseCase
@@ -8,11 +9,16 @@ from src.infrastructure.out.persistence.postgres_team_persistence import (
     PostgresTeamPersistence,
 )
 from src.infrastructure.out.scrapers.acb_scraper import AcbScraper
+from src.shared.infrastructure.config.logging_config import configure_logging
 from src.shared.infrastructure.config.settings import Settings
+
+logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    print("Iniciando sincronización de próximos partidos...")
+    configure_logging()
+
+    logger.info("Starting upcoming matches synchronization")
 
     settings = Settings()
 
@@ -27,15 +33,15 @@ def main() -> None:
     )
 
     try:
-        print("Ejecutando sincronización...")
         matches_count = use_case.execute()
-        print("Use case terminado.")
-    # ruff: noqa: BLE001
-    except Exception as exc:
-        print(f"Error durante la sincronización: {exc}", file=sys.stderr)
+    except Exception:
+        logger.exception("Upcoming matches synchronization failed")
         sys.exit(1)
 
-    print(f"Sincronización completada con éxito. {matches_count} partidos procesados.")
+    logger.info(
+        "Upcoming matches synchronization completed successfully: %d matches processed",
+        matches_count,
+    )
 
 
 if __name__ == "__main__":

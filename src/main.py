@@ -1,3 +1,4 @@
+import logging
 import os
 
 import uvicorn
@@ -27,13 +28,19 @@ from src.infrastructure.out.persistence.postgres_team_persistence import (
 from src.infrastructure.out.persistence.postgres_user_persistence import (
     PostgresUserPersistence,
 )
+from src.shared.infrastructure.config.logging_config import configure_logging
 from src.shared.infrastructure.config.settings import Settings
 from src.shared.infrastructure.system_uuid_generator import (
     SystemUuidGenerator,
 )
 
+logger = logging.getLogger(__name__)
+
 
 def create_app():
+    configure_logging()
+    logger.info("Starting application initialization")
+
     settings = Settings()
 
     # Infrastructure
@@ -97,19 +104,27 @@ def create_app():
     )
 
     # FastAPI + Telegram Webhook
-    return create_webhook_app(
+    app = create_webhook_app(
         telegram_app=telegram_app,
         settings=settings,
     )
+
+    logger.info("Application initialized successfully")
+
+    return app
 
 
 app = create_app()
 
 
 if __name__ == "__main__":
+    port = int(os.getenv("PORT", "8000"))
+
+    logger.info("Starting application server on port %d", port)
+
     uvicorn.run(
         "src.main:app",
         host="0.0.0.0",
-        port=int(os.getenv("PORT", "8000")),
+        port=port,
         reload=False,
     )

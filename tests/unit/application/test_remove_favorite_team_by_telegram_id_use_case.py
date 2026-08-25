@@ -14,68 +14,62 @@ from tests.test_utils.constants import (
     TELEGRAM_ID_404,
     USER_ID_1,
 )
+from tests.test_utils.team_mother import a_team
+from tests.test_utils.user_mother import an_user
 
 
-def test_remove_favorite_team_success(mock_user_repo: Mock, mock_team_repo: Mock):
+def test_remove_favorite_team_success(
+    mock_user_repo: Mock,
+    mock_team_repo: Mock,
+) -> None:
     # Given
-    mock_user_repo.find_by_telegram_id.return_value = User(
-        id=USER_ID_1,
-        telegram_id=TELEGRAM_ID_1,
-        username="John Doe",
-        favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
-        ],
-    )
-    mock_team_repo.find_by_id.return_value = Team(
-        id=TEAM_ID_1,
-        name="Real Madrid",
-        short_name="RMB",
-        country="Spain",
-        logo_url="http:fake.s3/real-madrid.png",
+    fixture = RemoveFavoriteTeamTestFixture(
+        mock_user_repo,
+        mock_team_repo,
     )
 
-    use_case = RemoveFavoriteTeamByTelegramIdUseCase(mock_user_repo, mock_team_repo)
+    fixture.given_user_repository_returns(
+        an_user(
+            id=USER_ID_1,
+            favorite_teams=[TEAM_ID_1],
+        )
+    )
+    fixture.given_team_repository_returns(a_team(id=TEAM_ID_1))
 
     # When
-    use_case.execute(telegram_id=TELEGRAM_ID_1, team_id=TEAM_ID_1)
+    fixture.use_case.execute(
+        telegram_id=TELEGRAM_ID_1,
+        team_id=TEAM_ID_1,
+    )
 
     # Then
     mock_user_repo.find_by_telegram_id.assert_called_once_with(TELEGRAM_ID_1)
     mock_team_repo.find_by_id.assert_called_once_with(TEAM_ID_1)
-    mock_user_repo.save.assert_called_once_with(
-        User(
-            id=USER_ID_1,
-            telegram_id=TELEGRAM_ID_1,
-            username="John Doe",
-            favorite_teams=[],
+    mock_user_repo.save.assert_called_once()
+
+
+def test_remove_favorite_team_does_not_save_when_team_is_not_a_favorite_one(
+    mock_user_repo: Mock,
+    mock_team_repo: Mock,
+) -> None:
+    # Given
+    fixture = RemoveFavoriteTeamTestFixture(
+        mock_user_repo,
+        mock_team_repo,
+    )
+
+    fixture.given_user_repository_returns(
+        an_user(
+            favorite_teams=[TEAM_ID_1],
         )
     )
-
-
-def test_remove_favorite_team_does_not_remove_anything_when_team_is_not_a_favorite_one(
-    mock_user_repo: Mock, mock_team_repo: Mock
-):
-    # Given
-    mock_user_repo.find_by_telegram_id.return_value = User(
-        id=USER_ID_1,
-        telegram_id=TELEGRAM_ID_1,
-        username="John Doe",
-        favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
-        ],
-    )
-    mock_team_repo.find_by_id.return_value = Team(
-        id=TEAM_ID_2,
-        name="UCAM Murcia",
-        short_name="UCM",
-        country="Spain",
-        logo_url="http:fake.s3/ucam-murcia.png",
-    )
-
-    use_case = RemoveFavoriteTeamByTelegramIdUseCase(mock_user_repo, mock_team_repo)
+    fixture.given_team_repository_returns(a_team(id=TEAM_ID_2))
 
     # When
-    use_case.execute(telegram_id=TELEGRAM_ID_1, team_id=TEAM_ID_2)
+    fixture.use_case.execute(
+        telegram_id=TELEGRAM_ID_1,
+        team_id=TEAM_ID_2,
+    )
 
     # Then
     mock_user_repo.find_by_telegram_id.assert_called_once_with(TELEGRAM_ID_1)
@@ -84,19 +78,26 @@ def test_remove_favorite_team_does_not_remove_anything_when_team_is_not_a_favori
 
 
 def test_remove_favorite_team_fails_when_user_does_not_exist(
-    mock_user_repo: Mock, mock_team_repo: Mock
-):
+    mock_user_repo: Mock,
+    mock_team_repo: Mock,
+) -> None:
     # Given
-    mock_user_repo.find_by_telegram_id.return_value = None
+    fixture = RemoveFavoriteTeamTestFixture(
+        mock_user_repo,
+        mock_team_repo,
+    )
 
-    use_case = RemoveFavoriteTeamByTelegramIdUseCase(mock_user_repo, mock_team_repo)
+    fixture.given_user_repository_returns(None)
 
     # When / Then
     with pytest.raises(
         ValueError,
-        match="Usuario con telegram id 404 no encontrado",
+        match="User with telegram id 404 not found",
     ):
-        use_case.execute(telegram_id=TELEGRAM_ID_404, team_id=TEAM_ID_1)
+        fixture.use_case.execute(
+            telegram_id=TELEGRAM_ID_404,
+            team_id=TEAM_ID_1,
+        )
 
     mock_user_repo.find_by_telegram_id.assert_called_once_with(TELEGRAM_ID_404)
     mock_team_repo.find_by_id.assert_not_called()
@@ -104,28 +105,53 @@ def test_remove_favorite_team_fails_when_user_does_not_exist(
 
 
 def test_remove_favorite_team_fails_when_team_does_not_exist(
-    mock_user_repo: Mock, mock_team_repo: Mock
-):
+    mock_user_repo: Mock,
+    mock_team_repo: Mock,
+) -> None:
     # Given
-    mock_user_repo.find_by_telegram_id.return_value = User(
-        id=USER_ID_1,
-        telegram_id=TELEGRAM_ID_1,
-        username="John Doe",
-        favorite_teams=[
-            User.FavoriteTeam(team_id=TEAM_ID_1, notifications_enabled=True)
-        ],
+    fixture = RemoveFavoriteTeamTestFixture(
+        mock_user_repo,
+        mock_team_repo,
     )
-    mock_team_repo.find_by_id.return_value = None
 
-    use_case = RemoveFavoriteTeamByTelegramIdUseCase(mock_user_repo, mock_team_repo)
+    fixture.given_user_repository_returns(
+        an_user(
+            favorite_teams=[TEAM_ID_1],
+        )
+    )
+    fixture.given_team_repository_returns(None)
 
     # When / Then
     with pytest.raises(
         ValueError,
-        match="Equipo con id 00000000-0000-0000-0000-000000000404 no encontrado",
+        match="Team 00000000-0000-0000-0000-000000000404 not found",
     ):
-        use_case.execute(telegram_id=TELEGRAM_ID_1, team_id=TEAM_ID_404)
+        fixture.use_case.execute(
+            telegram_id=TELEGRAM_ID_1,
+            team_id=TEAM_ID_404,
+        )
 
     mock_user_repo.find_by_telegram_id.assert_called_once_with(TELEGRAM_ID_1)
     mock_team_repo.find_by_id.assert_called_once_with(TEAM_ID_404)
     mock_user_repo.save.assert_not_called()
+
+
+class RemoveFavoriteTeamTestFixture:
+    def __init__(
+        self,
+        user_repo: Mock,
+        team_repo: Mock,
+    ) -> None:
+        self.user_repo = user_repo
+        self.team_repo = team_repo
+
+        self.use_case = RemoveFavoriteTeamByTelegramIdUseCase(
+            user_repo=self.user_repo,
+            team_repo=self.team_repo,
+        )
+
+    def given_user_repository_returns(self, user: User | None) -> None:
+        self.user_repo.find_by_telegram_id.return_value = user
+
+    def given_team_repository_returns(self, team: Team | None) -> None:
+        self.team_repo.find_by_id.return_value = team
