@@ -30,7 +30,6 @@ def create_telegram_app(
     get_available_teams_use_case: GetAvailableTeamsUseCase,
     get_upcoming_matches_by_telegram_id_use_case: GetUpcomingMatchesByTelegramIdUseCase,
 ) -> Application:
-    """Instancia y configura los handlers de la aplicación de Telegram."""
 
     handlers = TelegramBotHandlers(
         register_user_use_case=register_user_use_case,
@@ -59,7 +58,6 @@ def create_telegram_app(
     )
     app.add_handler(CommandHandler("partidos", handlers.upcoming_matches_handler))
 
-    # Callbacks de los botones
     app.add_handler(
         CallbackQueryHandler(handlers.favorite_team_callback_handler, pattern=r"^fav:")
     )

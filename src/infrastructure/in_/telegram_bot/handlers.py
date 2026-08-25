@@ -21,8 +21,6 @@ from src.domain.entities import TeamId, TelegramId
 
 
 class TelegramBotHandlers:
-    """Handlers de Telegram para BasketInfoBot."""
-
     def __init__(
         self,
         register_user_use_case: RegisterUserUseCase,

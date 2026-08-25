@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Response
@@ -5,6 +6,8 @@ from telegram import Update
 from telegram.ext import Application
 
 from src.shared.infrastructure.config.settings import Settings
+
+logger = logging.getLogger(__name__)
 
 
 def create_webhook_app(
@@ -15,6 +18,8 @@ def create_webhook_app(
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
+        logger.info("Initializing Telegram webhook")
+
         await telegram_app.initialize()
 
         await telegram_app.bot.set_webhook(
@@ -23,14 +28,18 @@ def create_webhook_app(
 
         await telegram_app.start()
 
-        print(f"Webhook de Telegram configurado: {webhook_url}")
+        logger.info("Telegram webhook configured successfully")
 
         try:
             yield
         finally:
+            logger.info("Shutting down Telegram webhook")
+
             await telegram_app.bot.delete_webhook()
             await telegram_app.stop()
             await telegram_app.shutdown()
+
+            logger.info("Telegram webhook shutdown completed")
 
     app = FastAPI(lifespan=lifespan)
 
@@ -40,6 +49,8 @@ def create_webhook_app(
 
     @app.post("/telegram/webhook")
     async def telegram_webhook(request: Request) -> Response:
+        logger.debug("Received Telegram webhook request")
+
         data = await request.json()
 
         update = Update.de_json(
@@ -48,6 +59,8 @@ def create_webhook_app(
         )
 
         await telegram_app.update_queue.put(update)
+
+        logger.debug("Telegram webhook request processed successfully")
 
         return Response(status_code=200)
 
