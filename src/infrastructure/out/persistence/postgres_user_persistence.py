@@ -16,7 +16,6 @@ class PostgresUserPersistence(UserRepository):
 
     def save(self, user: User) -> None:
         with self._get_connection() as conn, conn.cursor() as cursor:
-            # 1. Guardar/actualizar datos del usuario
             cursor.execute(
                 query="""
                     INSERT INTO users (id, telegram_id, username)
@@ -31,7 +30,6 @@ class PostgresUserPersistence(UserRepository):
                 },
             )
 
-            # 2. Reemplazar/Sincronizar equipos favoritos
             cursor.execute(
                 query="""
                     DELETE FROM user_favorite_teams
@@ -79,7 +77,6 @@ class PostgresUserPersistence(UserRepository):
             if not user_row:
                 return None
 
-            # Obtener los IDs de equipos favoritos
             cursor.execute(
                 query="""
                     SELECT team_id, notifications_enabled

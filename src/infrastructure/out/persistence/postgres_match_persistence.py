@@ -30,7 +30,6 @@ class PostgresMatchPersistence(MatchRepository):
             return
 
         with self._get_connection() as conn, conn.cursor() as cursor:
-            # 1. Guardar/actualizar todos los partidos
             match_values = [
                 (
                     str(match.id.value),
@@ -71,7 +70,6 @@ class PostgresMatchPersistence(MatchRepository):
                 match_values,
             )
 
-            # 2. Eliminar los canales actuales de todos los partidos
             match_ids = [str(match.id.value) for match in matches]
 
             cursor.execute(
@@ -82,7 +80,6 @@ class PostgresMatchPersistence(MatchRepository):
                 (match_ids,),
             )
 
-            # 3. Preparar los canales
             channel_values = [
                 (
                     str(match.id.value),
@@ -92,7 +89,6 @@ class PostgresMatchPersistence(MatchRepository):
                 for channel in match.channels
             ]
 
-            # 4. Insertar todos los canales
             if channel_values:
                 execute_values(
                     cursor,

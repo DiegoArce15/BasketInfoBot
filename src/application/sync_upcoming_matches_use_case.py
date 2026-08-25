@@ -22,7 +22,7 @@ class SyncUpcomingMatchesUseCase:
         self._team_repository = team_repository
 
     def execute(self) -> int:
-        logger.info(logger.info("Starting upcoming matches synchronization"))
+        logger.info("Starting upcoming matches synchronization")
 
         commands = self._match_fetcher.fetch_upcoming_matches()
 
