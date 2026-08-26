@@ -62,10 +62,14 @@ Contains the business model and repository/fetcher ports.
 
 ```text
 src/domain/
-├── entities/
+├── id_generator.py
 ├── match_fetcher.py
 ├── match_repository.py
-└── team_repository.py
+├── match.py
+├── team_repository.py+
+├── team.py
+├── user_repository.py
+└── user.py
 ```
 
 The domain does not depend on PostgreSQL, Telegram, FastAPI or Playwright.

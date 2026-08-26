@@ -62,10 +62,14 @@ Contiene el modelo de negocio y los puertos de repositorios y obtención de part
 
 ```text
 src/domain/
-├── entities/
+├── id_generator.py
 ├── match_fetcher.py
 ├── match_repository.py
-└── team_repository.py
+├── match.py
+├── team_repository.py+
+├── team.py
+├── user_repository.py
+└── user.py
 ```
 
 El dominio no depende de PostgreSQL, Telegram, FastAPI ni Playwright.
