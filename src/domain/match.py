@@ -12,48 +12,31 @@ class MatchId:
     value: str
 
     def __post_init__(self) -> None:
-        if not self.value or not self.value.strip():
-            raise ValueError("El MatchId no puede estar vacío.")
-
-    @staticmethod
-    def _slugify(text: str) -> str:
-        """
-        Transforma 'Río Breogán' o 'Kids&Us Manresa' en 'rio-breogan' o 'kids-us-manresa'.
-        """
-        # 1. Reemplazar '&' por espacio para evitar que las palabras se junten
-        text = text.replace("&", " ")
-
-        # 2. Normalizar acentos y diacríticos
-        text = unicodedata.normalize("NFD", text)
-        text = "".join(c for c in text if unicodedata.category(c) != "Mn")
-
-        # 3. Eliminar caracteres especiales
-        text = re.sub(r"[^\w\s-]", "", text)
-
-        # 4. Reemplazar espacios múltiples por un solo guion
-        text = re.sub(r"[-\s]+", "-", text).strip("-")
-
-        return text.lower()
+        if not self.value.strip():
+            raise ValueError("MatchId cannot be empty")
 
     @classmethod
     def create(
-        cls, home_team: str, away_team: str, start_time: date | datetime
+        cls,
+        home_team: str,
+        away_team: str,
+        start_time: date | datetime,
     ) -> "MatchId":
-        """
-        Genera un MatchId determinista, limpio y legible.
-        Ejemplo: 'Río Breogán' vs 'Kids&Us Manresa' -> 'rio-breogan-vs-kids-us-manresa-2026-09-26'
-        """
-        home_slug = cls._slugify(home_team)
-        away_slug = cls._slugify(away_team)
+        home_team_slug = cls._slugify(home_team)
+        away_team_slug = cls._slugify(away_team)
+        match_date = start_time.strftime("%Y-%m-%d")
 
-        date_str = (
-            start_time.strftime("%Y-%m-%d")
-            if isinstance(start_time, (date, datetime))
-            else str(start_time)
-        )
+        return cls(value=f"{home_team_slug}-vs-{away_team_slug}-{match_date}")
 
-        formatted_id = f"{home_slug}-vs-{away_slug}-{date_str}"
-        return cls(value=formatted_id)
+    @staticmethod
+    def _slugify(text: str) -> str:
+        text = text.replace("&", " ")
+        text = unicodedata.normalize("NFD", text)
+        text = "".join(char for char in text if unicodedata.category(char) != "Mn")
+        text = re.sub(r"[^\w\s-]", "", text)
+        text = re.sub(r"[-\s]+", "-", text)
+
+        return text.strip("-").lower()
 
     def __str__(self) -> str:
         return self.value
@@ -71,7 +54,7 @@ class Score:
 
     def __post_init__(self) -> None:
         if self.home < 0 or self.away < 0:
-            raise ValueError("El marcador no puede contener valores negativos.")
+            raise ValueError("Score cannot contain negative values")
 
 
 class MatchStatus(str, Enum):
