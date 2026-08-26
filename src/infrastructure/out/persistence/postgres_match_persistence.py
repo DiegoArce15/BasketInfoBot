@@ -3,16 +3,10 @@ from uuid import UUID
 import psycopg2
 from psycopg2.extras import RealDictCursor, execute_values
 
-from src.domain.entities import (
-    Channel,
-    Match,
-    MatchId,
-    MatchStatus,
-    Score,
-    TeamId,
-    UserId,
-)
+from src.domain.match import Channel, Match, MatchId, MatchStatus, Score
 from src.domain.match_repository import MatchRepository
+from src.domain.team import TeamId
+from src.domain.user import UserId
 
 
 class PostgresMatchPersistence(MatchRepository):

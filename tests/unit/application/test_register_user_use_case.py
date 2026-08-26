@@ -2,7 +2,7 @@ from unittest.mock import Mock
 from uuid import UUID
 
 from src.application.register_user_use_case import RegisterUserUseCase
-from src.domain.entities import User
+from src.domain.user import User
 from tests.test_utils.constants import TELEGRAM_ID_1, USER_ID_1, UUID_1
 from tests.test_utils.user_mother import an_user
 

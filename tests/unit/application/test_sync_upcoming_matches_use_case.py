@@ -5,7 +5,8 @@ import pytest
 
 from src.application.sync_upcoming_matches_command import SyncMatchCommand
 from src.application.sync_upcoming_matches_use_case import SyncUpcomingMatchesUseCase
-from src.domain.entities import Channel, Match, MatchId, MatchStatus, Score, Team
+from src.domain.match import Channel, Match, MatchId, MatchStatus, Score
+from src.domain.team import Team
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,

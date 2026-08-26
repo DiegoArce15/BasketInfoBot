@@ -1,6 +1,7 @@
 from uuid import UUID
 
-from src.domain.entities import TeamId, TelegramId, UserId
+from src.domain.team import TeamId
+from src.domain.user import TelegramId, UserId
 
 UUID_1 = UUID("00000000-0000-0000-0000-000000000001")
 UUID_2 = UUID("00000000-0000-0000-0000-000000000002")

@@ -2,9 +2,10 @@ import logging
 import time
 
 from src.application.sync_upcoming_matches_command import SyncMatchCommand
-from src.domain.entities import Match, MatchId, Team
+from src.domain.match import Match, MatchId
 from src.domain.match_fetcher import MatchFetcher
 from src.domain.match_repository import MatchRepository
+from src.domain.team import Team
 from src.domain.team_repository import TeamRepository
 
 logger = logging.getLogger(__name__)

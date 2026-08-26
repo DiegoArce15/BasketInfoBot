@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 
 from src.application.get_available_teams_use_case import GetAvailableTeamsUseCase
-from src.domain.entities import Team
+from src.domain.team import Team
 from tests.test_utils.constants import TEAM_ID_1, TEAM_ID_2
 
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.domain.entities import TelegramId, User, UserId
+from src.domain.user import TelegramId, User, UserId
 
 
 class UserRepository(ABC):

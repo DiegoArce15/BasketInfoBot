@@ -3,7 +3,7 @@ from unittest.mock import Mock
 from src.application.get_favorite_teams_by_telegram_id_use_case import (
     GetFavoriteTeamsByTelegramIdUseCase,
 )
-from src.domain.entities import Team
+from src.domain.team import Team
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,

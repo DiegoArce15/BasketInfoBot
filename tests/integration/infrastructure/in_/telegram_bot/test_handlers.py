@@ -6,7 +6,8 @@ import pytest
 from src.application.get_upcoming_matches_by_telegram_id_use_case import (
     MatchResponseDTO,
 )
-from src.domain.entities import Team, TelegramId
+from src.domain.team import Team
+from src.domain.user import TelegramId
 from src.infrastructure.in_.telegram_bot.handlers import TelegramBotHandlers
 from tests.test_utils.constants import TEAM_ID_1, TEAM_ID_2, TELEGRAM_ID_1
 

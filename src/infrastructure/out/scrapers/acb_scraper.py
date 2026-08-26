@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, Tag
 from playwright.sync_api import sync_playwright
 
 from src.application.sync_upcoming_matches_command import SyncMatchCommand
-from src.domain.entities import Channel, MatchStatus, Score
+from src.domain.match import Channel, MatchStatus, Score
 from src.domain.match_fetcher import MatchFetcher
 
 logger = logging.getLogger(__name__)

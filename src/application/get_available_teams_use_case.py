@@ -1,4 +1,4 @@
-from src.domain.entities import Team
+from src.domain.team import Team
 from src.domain.team_repository import TeamRepository
 
 

@@ -2,9 +2,11 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 
-from src.domain.entities import Match, Team, TeamId, TelegramId
+from src.domain.match import Match
 from src.domain.match_repository import MatchRepository
+from src.domain.team import Team, TeamId
 from src.domain.team_repository import TeamRepository
+from src.domain.user import TelegramId
 from src.domain.user_repository import UserRepository
 
 logger = logging.getLogger(__name__)

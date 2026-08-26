@@ -17,7 +17,8 @@ from src.application.register_user_use_case import RegisterUserUseCase
 from src.application.remove_favorite_team_by_telegram_id_use_case import (
     RemoveFavoriteTeamByTelegramIdUseCase,
 )
-from src.domain.entities import TeamId, TelegramId
+from src.domain.team import TeamId
+from src.domain.user import TelegramId
 
 
 class TelegramBotHandlers:
