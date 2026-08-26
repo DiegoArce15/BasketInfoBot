@@ -99,7 +99,10 @@ src/infrastructure/
 │   ├── cli/
 │   └── telegram_bot/
 │       ├── bot.py
-│       ├── handlers.py
+│       ├── remove_favorite_teams_handler.py
+│       ├── select_favorite_teams_handler.py
+│       ├── start_handler.py
+│       ├── upcoming_matches_for_user_handler.py
 │       └── webhook.py
 │
 └── out/
