@@ -4,6 +4,7 @@ from src.domain.team import TeamId
 from src.domain.team_repository import TeamRepository
 from src.domain.user import TelegramId, User
 from src.domain.user_repository import UserRepository
+from src.shared.application.application_error import ApplicationError
 
 logger = logging.getLogger(__name__)
 
@@ -45,10 +46,12 @@ class RemoveFavoriteTeamByTelegramIdUseCase:
         user = self._user_repo.find_by_telegram_id(telegram_id)
 
         if user is None:
-            raise ValueError(f"User with telegram id {telegram_id.value} not found")
+            raise ApplicationError(
+                f"User with telegram id {telegram_id.value} not found"
+            )
 
         return user
 
     def _check_team_exists(self, team_id: TeamId) -> None:
         if self._team_repo.find_by_id(team_id) is None:
-            raise ValueError(f"Team {team_id.value} not found")
+            raise ApplicationError(f"Team {team_id.value} not found")

@@ -7,6 +7,7 @@ from src.application.remove_favorite_team_by_telegram_id_use_case import (
 )
 from src.domain.team import Team
 from src.domain.user import User
+from src.shared.application.application_error import ApplicationError
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,
@@ -92,7 +93,7 @@ def test_remove_favorite_team_fails_when_user_does_not_exist(
 
     # When / Then
     with pytest.raises(
-        ValueError,
+        ApplicationError,
         match="User with telegram id 404 not found",
     ):
         fixture.use_case.execute(
@@ -124,7 +125,7 @@ def test_remove_favorite_team_fails_when_team_does_not_exist(
 
     # When / Then
     with pytest.raises(
-        ValueError,
+        ApplicationError,
         match="Team 00000000-0000-0000-0000-000000000404 not found",
     ):
         fixture.use_case.execute(

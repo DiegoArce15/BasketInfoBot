@@ -7,6 +7,7 @@ from src.application.sync_upcoming_matches_command import SyncMatchCommand
 from src.application.sync_upcoming_matches_use_case import SyncUpcomingMatchesUseCase
 from src.domain.match import Channel, Match, MatchId, MatchStatus, Score
 from src.domain.team import Team
+from src.shared.application.application_error import ApplicationError
 from tests.test_utils.constants import (
     TEAM_ID_1,
     TEAM_ID_2,
@@ -201,7 +202,7 @@ def test_sync_upcoming_matches_fails_when_team_does_not_exist(
 
     # When / Then
     with pytest.raises(
-        ValueError,
+        ApplicationError,
         match="Team not found: Unknown Team",
     ):
         fixture.use_case.execute()

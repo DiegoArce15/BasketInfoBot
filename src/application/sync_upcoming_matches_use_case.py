@@ -7,6 +7,7 @@ from src.domain.match_fetcher import MatchFetcher
 from src.domain.match_repository import MatchRepository
 from src.domain.team import Team
 from src.domain.team_repository import TeamRepository
+from src.shared.application.application_error import ApplicationError
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +92,7 @@ class SyncUpcomingMatchesUseCase:
         team = teams_by_name.get(team_name)
 
         if team is None:
-            raise ValueError(f"Team not found: {team_name}")
+            raise ApplicationError(f"Team not found: {team_name}")
 
         return team
 
