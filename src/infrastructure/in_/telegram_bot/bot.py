@@ -2,6 +2,8 @@ from telegram.ext import (
     Application,
     CallbackQueryHandler,
     CommandHandler,
+    MessageHandler,
+    filters,
 )
 
 from src.application.add_favorite_team_by_telegram_id_use_case import (
@@ -18,6 +20,7 @@ from src.application.register_user_use_case import RegisterUserUseCase
 from src.application.remove_favorite_team_by_telegram_id_use_case import (
     RemoveFavoriteTeamByTelegramIdUseCase,
 )
+from src.infrastructure.in_.telegram_bot.help_handler import HelpHandler
 from src.infrastructure.in_.telegram_bot.remove_favorite_teams_handler import (
     RemoveFavoriteTeamHandler,
 )
@@ -25,6 +28,9 @@ from src.infrastructure.in_.telegram_bot.select_favorite_teams_handler import (
     SelectFavoriteTeamHandler,
 )
 from src.infrastructure.in_.telegram_bot.start_handler import StartHandler
+from src.infrastructure.in_.telegram_bot.unknown_command_handler import (
+    UnknownCommandHandler,
+)
 from src.infrastructure.in_.telegram_bot.upcoming_matches_for_user_handler import (
     UpcomingMatchesForUserHandler,
 )
@@ -53,17 +59,26 @@ def create_telegram_app(
             get_upcoming_matches_by_telegram_id_use_case
         ),
     )
+    unknown_command_handler = UnknownCommandHandler()
+    help_handler = HelpHandler()
 
     app = Application.builder().token(bot_token).updater(None).build()
 
     # Comandos
-    app.add_handler(CommandHandler("start", start_handler.handle))
-    app.add_handler(CommandHandler("favorito", select_favorite_teams_handler.handle))
+    app.add_handler(
+        CommandHandler("start", start_handler.handle),
+    )
+    app.add_handler(
+        CommandHandler("favorito", select_favorite_teams_handler.handle),
+    )
     app.add_handler(
         CommandHandler("quitarfavorito", remove_favorite_team_handler.handle)
     )
     app.add_handler(
         CommandHandler("partidos", upcoming_matches_for_user_handler.handle)
+    )
+    app.add_handler(
+        CommandHandler("ayuda", help_handler.handle),
     )
 
     app.add_handler(
@@ -77,5 +92,7 @@ def create_telegram_app(
             remove_favorite_team_handler.callback_handle, pattern=r"^remove:"
         )
     )
+
+    app.add_handler(MessageHandler(filters.COMMAND, unknown_command_handler.handle))
 
     return app

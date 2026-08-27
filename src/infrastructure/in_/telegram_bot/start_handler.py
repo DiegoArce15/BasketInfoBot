@@ -31,6 +31,7 @@ class StartHandler:
             "Comandos disponibles:\n"
             "• `/favorito` - Añadir un equipo a favoritos\n"
             "• `/quitarfavorito` - Quitar un equipo de favoritos\n"
-            "• `/partidos` - Ver tus próximos partidos",
+            "• `/partidos` - Ver tus próximos partidos\n"
+            "• `/ayuda` - Muestra los comandos disponibles",
             parse_mode="Markdown",
         )
